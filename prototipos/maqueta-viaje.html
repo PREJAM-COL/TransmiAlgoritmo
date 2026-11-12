@@ -1,0 +1,640 @@
+<title>Maqueta TransmiAlgoritmo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Centro de operaciones: la red ocupa el centro; paneles de cristal a los lados; línea de tiempo abajo. Diseño solo oscuro, por decisión. */
+:root {
+  color-scheme: dark;
+  --bg: #060a13;
+  --bg-2: #0b1322;
+  --panel: rgba(13, 22, 39, 0.78);
+  --panel-solid: #0d1627;
+  --line: rgba(120, 170, 255, 0.13);
+  --line-2: rgba(120, 170, 255, 0.24);
+  --text: #e6eef8;
+  --dim: #8a9bb4;
+  --faint: #5b6b84;
+  --cyan: #22d3ee;
+  --cyan-soft: rgba(34, 211, 238, 0.14);
+  --blue: #3b82f6;
+  --bus: #d7262e;
+  --bus-dark: #8e161c;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --sim: #a78bfa;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-text: "Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --r: 14px;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f-text);
+  font-size: 14px;
+  line-height: 1.45;
+  overflow: hidden;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+* { box-sizing: border-box; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 6px; }
+
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 12px;
+  padding-block: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background:
+    radial-gradient(1200px 600px at 50% 40%, rgba(34, 211, 238, 0.06), transparent 60%),
+    radial-gradient(800px 500px at 85% 100%, rgba(59, 130, 246, 0.07), transparent 60%),
+    var(--bg);
+}
+
+/* Barra superior */
+.top { display: flex; align-items: center; gap: 20px; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-weight: 700; font-size: 17px; letter-spacing: 0.01em; white-space: nowrap; }
+.brand-mark { display: flex; gap: 2px; align-items: center; }
+.brand-mark i { display: block; width: 9px; height: 14px; border-radius: 3px; background: var(--bus); box-shadow: 0 0 12px rgba(215, 38, 46, 0.55); }
+.brand-mark i:nth-child(2) { width: 11px; }
+.brand b { color: var(--cyan); font-weight: 700; }
+.tabs { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); overflow-x: auto; min-width: 0; scrollbar-width: none; }
+.tab { border: 0; background: transparent; padding: 7px 14px; border-radius: 999px; color: var(--dim); cursor: pointer; white-space: nowrap; font-weight: 500; transition: color .15s, background .15s; }
+.tab:hover { color: var(--text); }
+.tab[aria-current="page"] { background: var(--cyan-soft); color: var(--cyan); }
+.mock-badge { margin-left: auto; font-family: var(--f-mono); font-size: 11px; color: var(--dim); border: 1px dashed var(--line-2); padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+
+/* Cuerpo */
+.main { display: grid; grid-template-columns: 340px minmax(0, 1fr) 300px; gap: 12px; min-height: 0; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+.panel-in { padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; }
+h2 { font-size: 20px; font-weight: 600; }
+h3 { font-size: 15px; font-weight: 600; }
+
+/* Formulario */
+.fields { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.field { position: relative; }
+.field label { position: absolute; left: 40px; top: 7px; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 600; pointer-events: none; }
+.field input {
+  width: 100%; padding: 22px 12px 8px 40px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg-2); font-family: var(--f-display); font-weight: 500; font-size: 15px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.field input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px var(--cyan-soft); }
+.field .dot { position: absolute; left: 15px; top: 50%; width: 11px; height: 11px; margin-top: -5.5px; border-radius: 50%; border: 2.5px solid var(--cyan); background: var(--bg); }
+.field.dest .dot { border-color: var(--text); background: var(--text); }
+.swap { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 2; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--panel-solid); cursor: pointer; display: grid; place-items: center; color: var(--dim); }
+.swap:hover { color: var(--cyan); border-color: var(--cyan); }
+.sugg { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; list-style: none; margin: 0; padding: 4px; background: var(--panel-solid); border: 1px solid var(--line-2); border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+.sugg li { padding: 7px 10px; border-radius: 7px; cursor: pointer; font-family: var(--f-display); display: flex; justify-content: space-between; gap: 8px; }
+.sugg li[aria-selected="true"], .sugg li:hover { background: var(--cyan-soft); }
+.sugg mark { background: none; color: var(--cyan); }
+.sugg small { color: var(--faint); font-family: var(--f-mono); font-size: 11px; }
+.hint { font-size: 12px; color: var(--faint); display: flex; gap: 6px; align-items: center; }
+.req { font-family: var(--f-mono); font-size: 10.5px; color: var(--cyan); border: 1px solid rgba(34,211,238,.35); border-radius: 5px; padding: 1px 5px; }
+
+/* Resumen */
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+.summary div { background: var(--bg-2); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.summary b { font-family: var(--f-display); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.summary span { font-size: 11px; color: var(--dim); }
+
+/* Itinerario */
+.itin { list-style: none; margin: 0; padding: 0; position: relative; }
+.stop { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; }
+.stop .rail { position: relative; display: flex; justify-content: center; align-self: stretch; }
+.stop .rail::after { content: ""; position: absolute; top: 18px; bottom: -4px; width: 4px; border-radius: 2px; background: var(--leg, transparent); }
+.stop:last-child .rail::after { display: none; }
+.node { position: relative; z-index: 1; margin-top: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 3px solid var(--cyan); }
+.node.end { background: var(--text); border-color: var(--text); }
+.node.xfer { width: 18px; height: 18px; margin-top: 1px; border-color: var(--warn); box-shadow: 0 0 0 4px rgba(251,191,36,.15); animation: ping 2.4s ease-out infinite; }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(251,191,36,.45); } 70%,100% { box-shadow: 0 0 0 10px rgba(251,191,36,0); } }
+.stop .body { padding-bottom: 14px; min-width: 0; }
+.stop .name { font-family: var(--f-display); font-weight: 600; font-size: 15px; }
+.stop .meta { font-size: 12.5px; color: var(--dim); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 3px; }
+.leg { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.025); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.leg-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.route { font-family: var(--f-mono); font-weight: 500; font-size: 12.5px; padding: 2px 8px; border-radius: 6px; color: #06101c; background: var(--rc, var(--cyan)); }
+.leg-stops { font-size: 12px; color: var(--dim); }
+.leg-stops ol { margin: 4px 0 0; padding-left: 16px; }
+.time { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--text); font-size: 13px; }
+.chip { font-size: 10.5px; letter-spacing: 0.04em; border-radius: 999px; padding: 1px 8px; border: 1px solid; font-weight: 600; white-space: nowrap; }
+.chip.prog { color: var(--ok); border-color: rgba(52,211,153,.4); }
+.chip.est { color: var(--warn); border-color: rgba(251,191,36,.4); }
+.chip.sim { color: var(--sim); border-color: rgba(167,139,250,.4); }
+.note { font-size: 12px; color: var(--dim); border-left: 2px solid var(--line-2); padding-left: 10px; }
+
+/* Escenario */
+.stage { position: relative; min-height: 0; border-radius: var(--r); border: 1px solid var(--line); overflow: hidden;
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--bg-2);
+  background-blend-mode: normal; }
+.stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(closest-side at 50% 50%, transparent 55%, rgba(6,10,19,.7)); }
+.stage svg, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage canvas { pointer-events: none; }
+.stage svg { cursor: grab; }
+.stage svg:active { cursor: grabbing; }
+.overlay { position: absolute; z-index: 2; display: flex; gap: 8px; flex-wrap: wrap; }
+.overlay.tl { top: 12px; left: 12px; right: 12px; }
+.overlay.bl { bottom: 12px; left: 12px; right: 60px; }
+.overlay.br { bottom: 12px; right: 12px; flex-direction: column; }
+.glass { background: rgba(6,10,19,.72); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-size: 12px; color: var(--dim); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.glass strong { color: var(--text); font-weight: 600; }
+.zbtn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); background: rgba(6,10,19,.72); cursor: pointer; font-size: 17px; color: var(--dim); }
+.zbtn:hover { color: var(--cyan); border-color: var(--cyan); }
+.key { display: inline-flex; align-items: center; gap: 6px; }
+.key i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+.key i.net { background: rgba(140, 180, 240, .55); box-shadow: none; }
+.key i.busk { width: 12px; height: 5px; background: var(--bus); box-shadow: none; }
+.tip { position: absolute; z-index: 4; pointer-events: none; background: var(--panel-solid); border: 1px solid var(--line-2); border-radius: 8px; padding: 6px 9px; font-size: 12px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px)); }
+.tip b { font-family: var(--f-display); }
+.tip span { color: var(--dim); font-family: var(--f-mono); font-size: 11px; }
+
+/* Panel derecho */
+.st-head { display: flex; flex-direction: column; gap: 6px; }
+.st-name { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ok); font-weight: 600; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.kv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kv div { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.kv b { display: block; font-family: var(--f-display); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kv span { font-size: 11px; color: var(--dim); }
+.next { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.next li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 8px; background: rgba(255,255,255,.025); border: 1px solid var(--line); }
+.rank { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; counter-reset: r; }
+.rank li { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; font-size: 13px; counter-increment: r; }
+.rank li::before { content: counter(r); font-family: var(--f-mono); color: var(--faint); font-size: 11px; }
+.rank .bar { grid-column: 2 / 4; height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; margin-top: -4px; }
+.rank .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--cyan)); border-radius: 2px; }
+.rank .n { font-family: var(--f-mono); font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.sect { display: flex; flex-direction: column; gap: 10px; }
+.sect-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+/* Línea de tiempo */
+.timeline { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 16px; }
+.clock { display: flex; flex-direction: column; gap: 0; min-width: 104px; }
+.clock b { font-family: var(--f-mono); font-size: 30px; font-weight: 500; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text); text-shadow: 0 0 18px rgba(34,211,238,.35); line-height: 1.1; }
+.clock span { font-size: 11px; color: var(--faint); }
+.play { display: flex; gap: 6px; align-items: center; }
+.pbtn { height: 38px; min-width: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--bg-2); cursor: pointer; font-family: var(--f-mono); font-size: 12.5px; color: var(--dim); }
+.pbtn:hover, .pbtn[aria-pressed="true"] { color: var(--cyan); border-color: var(--cyan); }
+.track { position: relative; min-width: 0; }
+.hist { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; align-items: end; height: 34px; }
+.hist i { display: block; background: rgba(120,170,255,.22); border-radius: 2px 2px 0 0; }
+.hist i.on { background: linear-gradient(var(--cyan), rgba(34,211,238,.35)); }
+.track input { width: 100%; margin: 4px 0 0; accent-color: var(--cyan); }
+.ticks { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 10.5px; color: var(--faint); }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--panel-solid); border: 1px solid var(--line-2); padding: 10px 16px; border-radius: 10px; font-size: 13px; z-index: 20; box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+
+@media (max-width: 1180px) {
+  .main { grid-template-columns: 320px minmax(0, 1fr); }
+  .right { display: none; }
+}
+@media (max-width: 860px) {
+  body { overflow: auto; }
+  html, body { height: auto; }
+  .app { height: auto; min-height: 100%; }
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .stage { height: 62vh; order: -1; }
+  .right { display: block; }
+  .mock-badge { display: none; }
+  .timeline { grid-template-columns: auto minmax(0, 1fr); }
+  .timeline .track { grid-column: 1 / -1; }
+  .overlay.bl { right: 12px; bottom: 56px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .node.xfer { animation: none; }
+  .trip-line { animation: none !important; }
+}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Transmi<b>Algoritmo</b></span></div>
+    <nav class="tabs" aria-label="Vistas">
+      <button class="tab" aria-current="page">Viaje</button>
+      <button class="tab" data-mock>Red</button>
+      <button class="tab" data-mock>Operación</button>
+      <button class="tab" data-mock>Hora pico</button>
+      <button class="tab" data-mock>Rendimiento</button>
+    </nav>
+    <span class="mock-badge">MAQUETA · datos reales de los CSV · sin motor</span>
+  </header>
+
+  <main class="main">
+    <!-- Panel izquierdo: planear -->
+    <section class="panel left" aria-label="Planear viaje">
+      <div class="panel-in">
+        <div class="sect">
+          <span class="eyebrow">Planear viaje</span>
+          <div class="fields">
+            <div class="field">
+              <span class="dot" aria-hidden="true"></span>
+              <label for="f-origen">Origen</label>
+              <input id="f-origen" value="PORTAL AMERICAS" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="sugg" aria-autocomplete="list">
+            </div>
+            <button class="swap" id="swap" aria-label="Intercambiar origen y destino">⇅</button>
+            <div class="field dest">
+              <span class="dot" aria-hidden="true"></span>
+              <label for="f-destino">Destino</label>
+              <input id="f-destino" value="CALLE 100" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="sugg" aria-autocomplete="list">
+            </div>
+            <ul class="sugg" id="sugg" role="listbox" hidden></ul>
+          </div>
+          <div class="hint"><span class="req">R2</span> Escribe un prefijo, por ejemplo «CAL». En la app lo responde el motor.</div>
+        </div>
+
+        <div class="summary" aria-label="Resumen del viaje">
+          <div><b>4</b><span>paradas</span></div>
+          <div><b>1</b><span>transbordo</span></div>
+          <div><b class="time" style="font-size:22px">07:45</b><span>sale el bus</span></div>
+        </div>
+
+        <div class="sect">
+          <div class="sect-head"><span class="eyebrow">Itinerario <span class="req">R5</span></span><span class="chip prog">Programado</span></div>
+          <ol class="itin" id="itin"></ol>
+          <p class="note">Criterio del motor (R5): directo o con un transbordo, el que pase por menos paradas. Ejemplo fijo calculado con los CSV para una consulta a las 07:40.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Red -->
+    <section class="stage" id="stage" aria-label="Red esquemática de TransMilenio">
+      <svg id="svg" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Red de 147 estaciones y 518 conexiones, con el viaje resaltado">
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="busglow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="2.2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <g id="world">
+          <g id="g-edges"></g>
+          <g id="g-trip"></g>
+          <g id="g-nodes"></g>
+          <g id="g-labels"></g>
+          <g id="g-bus" filter="url(#busglow)"></g>
+        </g>
+      </svg>
+      <canvas id="fleet" aria-hidden="true"></canvas>
+      <div class="overlay tl">
+        <div class="glass"><strong>147</strong> estaciones <strong>518</strong> conexiones <strong>181</strong> rutas</div>
+      </div>
+      <div class="overlay bl">
+        <div class="glass">
+          <span class="key"><i></i>Tu viaje</span>
+          <span class="key"><i class="net"></i>Grosor: rutas en el tramo</span>
+          <span class="key"><i class="busk"></i>Flota</span><span class="chip sim">Simulado</span>
+        </div>
+      </div>
+      <div class="overlay br">
+        <button class="zbtn" id="zin" aria-label="Acercar">+</button>
+        <button class="zbtn" id="zout" aria-label="Alejar">−</button>
+        <button class="zbtn" id="zfit" aria-label="Ajustar a la pantalla">⤢</button>
+      </div>
+      <div class="tip" id="tip" hidden></div>
+    </section>
+
+    <!-- Panel derecho -->
+    <aside class="panel right" aria-label="Detalle de estación">
+      <div class="panel-in">
+        <div class="st-head">
+          <span class="eyebrow">Estación <span class="req">R1</span></span>
+          <h2 class="st-name" id="st-name">RICAURTE</h2>
+          <span class="status" id="st-status">Abierta</span>
+        </div>
+        <div class="kv">
+          <div><b id="st-buses">4.446</b><span>buses al día</span></div>
+          <div><b id="st-rutas">45</b><span>rutas paran aquí</span></div>
+        </div>
+        <div class="sect">
+          <div class="sect-head"><span class="eyebrow">Próximos buses <span class="req">R4</span></span><span class="chip prog">Programado</span></div>
+          <ul class="next" id="st-next"></ul>
+        </div>
+        <div class="sect">
+          <div class="sect-head"><span class="eyebrow">Más buses al día <span class="req">R6</span></span></div>
+          <ol class="rank" id="rank"></ol>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="panel timeline" aria-label="Hora de consulta">
+    <div class="clock"><b id="clock">07:40</b><span>hora de consulta</span></div>
+    <div class="play">
+      <button class="pbtn" id="play" aria-pressed="false" aria-label="Reproducir el paso del tiempo">▶</button>
+      <button class="pbtn" id="speed" aria-label="Velocidad">×60</button>
+    </div>
+    <div class="track">
+      <div class="hist" id="hist" aria-hidden="true"></div>
+      <input type="range" id="hora" min="0" max="1439" step="1" value="460" aria-label="Hora del día">
+      <div class="ticks"><span>00</span><span>06</span><span>12</span><span>18</span><span>23:59</span></div>
+    </div>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const DATA = {"estaciones":[{"n":"21 ANGELES","b":345,"r":6},{"n":"AGUAS","b":640,"r":7},{"n":"ALCALA","b":2100,"r":28},{"n":"ALQUERIA","b":505,"r":8},{"n":"AV. 1 DE MAYO","b":969,"r":14},{"n":"AV. 39","b":993,"r":21},{"n":"AV. 68","b":749,"r":12},{"n":"AV. AMERICAS - AV. BOYACA","b":794,"r":8},{"n":"AV. CALI","b":718,"r":9},{"n":"AV. CHILE","b":1463,"r":19},{"n":"AV. EL DORADO","b":713,"r":10},{"n":"AV. JIMENEZ","b":2684,"r":32},{"n":"AV. ROJAS","b":496,"r":10},{"n":"AV. SUBA - CALLE 116","b":816,"r":15},{"n":"BANDERAS","b":3038,"r":32},{"n":"BIBLIOTECA","b":355,"r":4},{"n":"BIBLIOTECA TINTAL","b":1183,"r":16},{"n":"BICENTENARIO","b":1329,"r":18},{"n":"BOSA","b":639,"r":6},{"n":"BOYACA","b":267,"r":4},{"n":"CAD","b":1525,"r":17},{"n":"CALLE 100","b":2249,"r":23},{"n":"CALLE 106","b":1251,"r":14},{"n":"CALLE 127","b":1338,"r":17},{"n":"CALLE 142","b":761,"r":14},{"n":"CALLE 146","b":932,"r":15},{"n":"CALLE 161","b":374,"r":8},{"n":"CALLE 187","b":497,"r":8},{"n":"CALLE 19","b":1562,"r":20},{"n":"CALLE 22","b":1537,"r":19},{"n":"CALLE 26","b":1952,"r":28},{"n":"CALLE 34","b":1334,"r":19},{"n":"CALLE 40 S.","b":2184,"r":27},{"n":"CALLE 45","b":1488,"r":20},{"n":"CALLE 57","b":1383,"r":24},{"n":"CALLE 63","b":1451,"r":18},{"n":"CALLE 72","b":1810,"r":26},{"n":"CALLE 76","b":2433,"r":33},{"n":"CALLE 85","b":1328,"r":21},{"n":"CAMPIN-UAN","b":1100,"r":14},{"n":"CAN","b":616,"r":12},{"n":"CASTELLANA","b":800,"r":8},{"n":"CDS - CRA. 32","b":623,"r":6},{"n":"CENTRO MEMORIA","b":279,"r":6},{"n":"CIUDAD JARDIN-UAN","b":196,"r":4},{"n":"CIUDAD UNIVERSITARIA","b":411,"r":10},{"n":"COMUNEROS","b":1183,"r":14},{"n":"CONCEJO DE BOGOTA","b":703,"r":12},{"n":"CONSUELO","b":457,"r":6},{"n":"COUNTRY SUR","b":344,"r":6},{"n":"CRA. 43","b":344,"r":4},{"n":"CRA. 47","b":390,"r":8},{"n":"CRA. 53","b":422,"r":6},{"n":"CRA. 90","b":400,"r":6},{"n":"DE LA SABANA","b":344,"r":4},{"n":"DISTRITO GRAFITI","b":686,"r":8},{"n":"EL TIEMPO - MALOKA","b":774,"r":13},{"n":"ESCUELA MILITAR","b":735,"r":14},{"n":"FERIAS","b":267,"r":4},{"n":"FLORES","b":1110,"r":15},{"n":"FUCHA","b":480,"r":7},{"n":"G. SANTANDER","b":1979,"r":23},{"n":"GOBERNACION","b":576,"r":10},{"n":"GRANJA - CRA. 77","b":1443,"r":21},{"n":"GRATAMIRA","b":281,"r":4},{"n":"GUATOQUE - VERAGUAS","b":1136,"r":15},{"n":"HEROES","b":2020,"r":32},{"n":"HORTUA","b":877,"r":12},{"n":"HOSPITAL","b":247,"r":4},{"n":"HUMEDAL CORDOBA","b":281,"r":4},{"n":"LA CAMPINA","b":1158,"r":16},{"n":"LA DESPENSA","b":717,"r":6},{"n":"LAS NIEVES","b":626,"r":9},{"n":"LEON XIII","b":440,"r":4},{"n":"MADELENA","b":294,"r":6},{"n":"MANDALAY","b":445,"r":6},{"n":"MARLY","b":2067,"r":22},{"n":"MARSELLA","b":753,"r":9},{"n":"MAZUREN","b":451,"r":7},{"n":"MINUTO DE DIOS","b":456,"r":7},{"n":"MODELIA","b":509,"r":10},{"n":"MOLINOS","b":1567,"r":20},{"n":"MOVISTAR ARENA","b":783,"r":11},{"n":"MUSEO DEL ORO","b":220,"r":3},{"n":"MUSEO NACIONAL","b":873,"r":12},{"n":"NARINO","b":1326,"r":14},{"n":"NIZA - CALLE 127","b":862,"r":11},{"n":"NORMANDIA","b":324,"r":6},{"n":"NQS - CALLE 30 SUR","b":294,"r":6},{"n":"NQS - CALLE 38A SUR","b":242,"r":4},{"n":"NQS - CALLE 75","b":912,"r":13},{"n":"OLAYA","b":502,"r":9},{"n":"PALOQUEMAO","b":900,"r":13},{"n":"PARQUE","b":379,"r":4},{"n":"PATIO BONITO","b":505,"r":8},{"n":"PEPE SIERRA","b":1570,"r":21},{"n":"PERDOMO","b":421,"r":8},{"n":"POLICARPA","b":90,"r":2},{"n":"POLO","b":738,"r":10},{"n":"PORTAL 20 DE JULIO","b":1130,"r":16},{"n":"PORTAL 80","b":1942,"r":25},{"n":"PORTAL AMERICAS","b":2500,"r":29},{"n":"PORTAL ELDORADO","b":1602,"r":24},{"n":"PORTAL NORTE","b":3282,"r":41},{"n":"PORTAL SUBA","b":2438,"r":35},{"n":"PORTAL SUR","b":2141,"r":27},{"n":"PORTAL TUNAL","b":1345,"r":19},{"n":"PORTAL USME","b":2031,"r":25},{"n":"PRADERA","b":457,"r":6},{"n":"PRADO","b":1025,"r":18},{"n":"PUENTE ARANDA","b":134,"r":2},{"n":"PUENTELARGO","b":773,"r":13},{"n":"QUINTA PAREDES","b":561,"r":10},{"n":"QUIRIGUA","b":293,"r":4},{"n":"QUIROGA","b":579,"r":8},{"n":"RECINTO FERIAL","b":795,"r":12},{"n":"RESTREPO","b":1060,"r":15},{"n":"RICAURTE","b":4446,"r":45},{"n":"RIONEGRO","b":309,"r":6},{"n":"SALITRE - EL GRECO","b":722,"r":14},{"n":"SAN BERNARDO","b":327,"r":6},{"n":"SAN DIEGO","b":301,"r":6},{"n":"SAN FACON - CRA. 22","b":332,"r":4},{"n":"SAN MARTIN","b":507,"r":8},{"n":"SAN MATEO","b":1308,"r":12},{"n":"SAN VICTORINO","b":414,"r":6},{"n":"SANTA ISABEL","b":658,"r":11},{"n":"SANTA LUCIA","b":1045,"r":13},{"n":"SENA","b":573,"r":8},{"n":"SEVILLANA","b":354,"r":6},{"n":"SIMON BOLIVAR","b":1579,"r":17},{"n":"SOCORRO","b":316,"r":4},{"n":"SUBA - AV. BOYACA","b":345,"r":6},{"n":"SUBA - CALLE 100","b":857,"r":12},{"n":"SUBA - CALLE 95","b":762,"r":10},{"n":"SUBA - TV. 91","b":561,"r":11},{"n":"TERCER MILENIO","b":992,"r":14},{"n":"TERMINAL","b":1232,"r":16},{"n":"TERREROS","b":682,"r":7},{"n":"TOBERIN","b":1708,"r":27},{"n":"TV. 86","b":461,"r":5},{"n":"TYGUA - SAN JOSE","b":734,"r":11},{"n":"U. NACIONAL","b":1780,"r":20},{"n":"UNIVERSIDADES","b":808,"r":18},{"n":"VENECIA","b":656,"r":10},{"n":"VIRREY","b":930,"r":20},{"n":"ZONA INDUSTRIAL","b":592,"r":6}],"aristas":[{"a":"RECINTO FERIAL","b":"UNIVERSIDADES","rutas":2,"pico":0,"pref":["N"]},{"a":"EL TIEMPO - MALOKA","b":"RECINTO FERIAL","rutas":3,"pico":0,"pref":["G","N"]},{"a":"EL TIEMPO - MALOKA","b":"PORTAL ELDORADO","rutas":3,"pico":0,"pref":["G","N"]},{"a":"MODELIA","b":"PORTAL ELDORADO","rutas":10,"pico":97,"pref":["B","G","H","K","L","N"]},{"a":"MODELIA","b":"NORMANDIA","rutas":6,"pico":56,"pref":["G","K","L","N"]},{"a":"AV. ROJAS","b":"NORMANDIA","rutas":2,"pico":13,"pref":["N"]},{"a":"AV. ROJAS","b":"EL TIEMPO - MALOKA","rutas":8,"pico":68,"pref":["B","H","K","N"]},{"a":"EL TIEMPO - MALOKA","b":"SALITRE - EL GRECO","rutas":10,"pico":91,"pref":["B","G","H","K","N"]},{"a":"CAN","b":"SALITRE - EL GRECO","rutas":10,"pico":86,"pref":["B","H","K","L","N"]},{"a":"CAN","b":"GOBERNACION","rutas":6,"pico":47,"pref":["B","K","L","N"]},{"a":"GOBERNACION","b":"QUINTA PAREDES","rutas":4,"pico":35,"pref":["G","K","N"]},{"a":"QUINTA PAREDES","b":"RECINTO FERIAL","rutas":8,"pico":76,"pref":["B","G","H","K","N"]},{"a":"CIUDAD UNIVERSITARIA","b":"RECINTO FERIAL","rutas":4,"pico":36,"pref":["H","K","N"]},{"a":"CIUDAD UNIVERSITARIA","b":"CONCEJO DE BOGOTA","rutas":6,"pico":47,"pref":["B","H","K","N"]},{"a":"CENTRO MEMORIA","b":"CONCEJO DE BOGOTA","rutas":4,"pico":28,"pref":["N"]},{"a":"CENTRO MEMORIA","b":"UNIVERSIDADES","rutas":2,"pico":13,"pref":["N"]},{"a":"BICENTENARIO","b":"MUSEO NACIONAL","rutas":2,"pico":0,"pref":["N"]},{"a":"AV. 1 DE MAYO","b":"BICENTENARIO","rutas":6,"pico":22,"pref":["B","C","L","N"]},{"a":"AV. 1 DE MAYO","b":"PORTAL 20 DE JULIO","rutas":8,"pico":19,"pref":["B","K","L","N"]},{"a":"COUNTRY SUR","b":"PORTAL 20 DE JULIO","rutas":6,"pico":59,"pref":["B","C","L","N"]},{"a":"AV. 1 DE MAYO","b":"COUNTRY SUR","rutas":6,"pico":59,"pref":["B","C","L","N"]},{"a":"AV. 1 DE MAYO","b":"CIUDAD JARDIN-UAN","rutas":4,"pico":36,"pref":["K","L","N"]},{"a":"CIUDAD JARDIN-UAN","b":"POLICARPA","rutas":2,"pico":16,"pref":["N"]},{"a":"POLICARPA","b":"SAN BERNARDO","rutas":2,"pico":18,"pref":["N"]},{"a":"BICENTENARIO","b":"SAN BERNARDO","rutas":6,"pico":56,"pref":["B","K","L","N"]},{"a":"BICENTENARIO","b":"SAN VICTORINO","rutas":2,"pico":16,"pref":["N"]},{"a":"LAS NIEVES","b":"SAN VICTORINO","rutas":5,"pico":36,"pref":["G","M","N"]},{"a":"LAS NIEVES","b":"SAN DIEGO","rutas":6,"pico":54,"pref":["F","G","M","N"]},{"a":"MUSEO NACIONAL","b":"SAN DIEGO","rutas":6,"pico":52,"pref":["F","G","M","N"]},{"a":"AV. JIMENEZ","b":"CONCEJO DE BOGOTA","rutas":2,"pico":0,"pref":["N"]},{"a":"AV. JIMENEZ","b":"RESTREPO","rutas":2,"pico":0,"pref":["N"]},{"a":"RESTREPO","b":"SANTA LUCIA","rutas":2,"pico":0,"pref":["N"]},{"a":"MOLINOS","b":"SANTA LUCIA","rutas":4,"pico":31,"pref":["D","H","N"]},{"a":"MOLINOS","b":"PORTAL USME","rutas":20,"pico":134,"pref":["B","C","D","H","K","N"]},{"a":"CONSUELO","b":"MOLINOS","rutas":6,"pico":64,"pref":["B","C","H","N"]},{"a":"CONSUELO","b":"SOCORRO","rutas":4,"pico":41,"pref":["B","H","N"]},{"a":"SANTA LUCIA","b":"SOCORRO","rutas":4,"pico":41,"pref":["B","H","N"]},{"a":"CALLE 40 S.","b":"SANTA LUCIA","rutas":9,"pico":118,"pref":["B","D","H","N"]},{"a":"CALLE 40 S.","b":"QUIROGA","rutas":2,"pico":15,"pref":["N"]},{"a":"OLAYA","b":"QUIROGA","rutas":2,"pico":15,"pref":["N"]},{"a":"OLAYA","b":"RESTREPO","rutas":3,"pico":26,"pref":["B","N"]},{"a":"FUCHA","b":"RESTREPO","rutas":2,"pico":14,"pref":["N"]},{"a":"FUCHA","b":"NARINO","rutas":6,"pico":75,"pref":["B","D","H","N"]},{"a":"HORTUA","b":"NARINO","rutas":4,"pico":43,"pref":["B","H","N"]},{"a":"HORTUA","b":"HOSPITAL","rutas":2,"pico":15,"pref":["N"]},{"a":"HOSPITAL","b":"TERCER MILENIO","rutas":2,"pico":15,"pref":["N"]},{"a":"AV. JIMENEZ","b":"TERCER MILENIO","rutas":8,"pico":87,"pref":["C","H","K","L","N"]},{"a":"AV. JIMENEZ","b":"CALLE 19","rutas":11,"pico":123,"pref":["C","D","H","N"]},{"a":"CALLE 19","b":"CALLE 22","rutas":9,"pico":87,"pref":["C","H","N"]},{"a":"CALLE 22","b":"CENTRO MEMORIA","rutas":4,"pico":35,"pref":["K","L","N"]},{"a":"HEROES","b":"SIMON BOLIVAR","rutas":2,"pico":0,"pref":["N"]},{"a":"RICAURTE","b":"SIMON BOLIVAR","rutas":2,"pico":0,"pref":["N"]},{"a":"G. SANTANDER","b":"RICAURTE","rutas":11,"pico":34,"pref":["B","C","D","G","K","N"]},{"a":"G. SANTANDER","b":"PORTAL SUR","rutas":9,"pico":0,"pref":["B","C","D","G","N"]},{"a":"PERDOMO","b":"PORTAL SUR","rutas":8,"pico":68,"pref":["A","B","G","M","N"]},{"a":"MADELENA","b":"PERDOMO","rutas":4,"pico":29,"pref":["A","G","N"]},{"a":"MADELENA","b":"SEVILLANA","rutas":2,"pico":18,"pref":["N"]},{"a":"SEVILLANA","b":"VENECIA","rutas":2,"pico":16,"pref":["N"]},{"a":"ALQUERIA","b":"VENECIA","rutas":6,"pico":52,"pref":["A","B","G","N"]},{"a":"ALQUERIA","b":"G. SANTANDER","rutas":4,"pico":31,"pref":["A","G","N"]},{"a":"G. SANTANDER","b":"NQS - CALLE 38A SUR","rutas":2,"pico":17,"pref":["N"]},{"a":"NQS - CALLE 30 SUR","b":"NQS - CALLE 38A SUR","rutas":4,"pico":40,"pref":["B","G","N"]},{"a":"NQS - CALLE 30 SUR","b":"SENA","rutas":4,"pico":38,"pref":["B","G","N"]},{"a":"SANTA ISABEL","b":"SENA","rutas":4,"pico":40,"pref":["B","G","N"]},{"a":"COMUNEROS","b":"SANTA ISABEL","rutas":4,"pico":34,"pref":["N"]},{"a":"COMUNEROS","b":"RICAURTE","rutas":6,"pico":61,"pref":["B","G","N"]},{"a":"PALOQUEMAO","b":"RICAURTE","rutas":8,"pico":84,"pref":["B","D","G","N"]},{"a":"CAD","b":"PALOQUEMAO","rutas":4,"pico":36,"pref":["N"]},{"a":"AV. EL DORADO","b":"CAD","rutas":4,"pico":35,"pref":["N"]},{"a":"AV. EL DORADO","b":"U. NACIONAL","rutas":6,"pico":60,"pref":["B","G","N"]},{"a":"CAMPIN-UAN","b":"U. NACIONAL","rutas":8,"pico":113,"pref":["B","C","G","N"]},{"a":"CAMPIN-UAN","b":"MOVISTAR ARENA","rutas":6,"pico":58,"pref":["C","L","N"]},{"a":"MOVISTAR ARENA","b":"SIMON BOLIVAR","rutas":4,"pico":35,"pref":["N"]},{"a":"AV. CHILE","b":"SIMON BOLIVAR","rutas":7,"pico":98,"pref":["B","E","F","N"]},{"a":"AV. CHILE","b":"NQS - CALLE 75","rutas":7,"pico":74,"pref":["D","E","G","N"]},{"a":"ESCUELA MILITAR","b":"NQS - CALLE 75","rutas":2,"pico":18,"pref":["N"]},{"a":"ESCUELA MILITAR","b":"POLO","rutas":4,"pico":32,"pref":["N"]},{"a":"HEROES","b":"POLO","rutas":2,"pico":18,"pref":["N"]},{"a":"AV. JIMENEZ","b":"CALLE 22","rutas":4,"pico":18,"pref":["K","L","N"]},{"a":"AV. JIMENEZ","b":"RICAURTE","rutas":4,"pico":0,"pref":["F","J","N"]},{"a":"DISTRITO GRAFITI","b":"RICAURTE","rutas":4,"pico":16,"pref":["F","M","N"]},{"a":"BANDERAS","b":"DISTRITO GRAFITI","rutas":2,"pico":0,"pref":["N"]},{"a":"BANDERAS","b":"PORTAL AMERICAS","rutas":9,"pico":13,"pref":["E","F","J","N"]},{"a":"BIBLIOTECA TINTAL","b":"PORTAL AMERICAS","rutas":10,"pico":75,"pref":["B","C","F","M","N"]},{"a":"BANDERAS","b":"BIBLIOTECA TINTAL","rutas":12,"pico":94,"pref":["B","C","F","M","N"]},{"a":"PATIO BONITO","b":"PORTAL AMERICAS","rutas":8,"pico":90,"pref":["C","F","J","M","N"]},{"a":"BIBLIOTECA TINTAL","b":"PATIO BONITO","rutas":6,"pico":64,"pref":["C","F","M","N"]},{"a":"BIBLIOTECA TINTAL","b":"TV. 86","rutas":4,"pico":51,"pref":["B","F","N"]},{"a":"BANDERAS","b":"TV. 86","rutas":5,"pico":50,"pref":["B","F","N"]},{"a":"BANDERAS","b":"MANDALAY","rutas":6,"pico":70,"pref":["C","F","M","N"]},{"a":"AV. AMERICAS - AV. BOYACA","b":"MANDALAY","rutas":4,"pico":35,"pref":["F","M","N"]},{"a":"AV. AMERICAS - AV. BOYACA","b":"MARSELLA","rutas":4,"pico":36,"pref":["F","M","N"]},{"a":"MARSELLA","b":"PRADERA","rutas":4,"pico":38,"pref":["F","M","N"]},{"a":"DISTRITO GRAFITI","b":"PRADERA","rutas":4,"pico":37,"pref":["F","M","N"]},{"a":"DISTRITO GRAFITI","b":"PUENTE ARANDA","rutas":2,"pico":21,"pref":["N"]},{"a":"CRA. 43","b":"PUENTE ARANDA","rutas":2,"pico":21,"pref":["N"]},{"a":"CRA. 43","b":"ZONA INDUSTRIAL","rutas":4,"pico":57,"pref":["C","F","N"]},{"a":"CDS - CRA. 32","b":"ZONA INDUSTRIAL","rutas":4,"pico":70,"pref":["B","F","N"]},{"a":"CDS - CRA. 32","b":"RICAURTE","rutas":2,"pico":21,"pref":["N"]},{"a":"RICAURTE","b":"SAN FACON - CRA. 22","rutas":4,"pico":61,"pref":["F","J","N"]},{"a":"DE LA SABANA","b":"SAN FACON - CRA. 22","rutas":2,"pico":20,"pref":["N"]},{"a":"AV. JIMENEZ","b":"DE LA SABANA","rutas":2,"pico":20,"pref":["N"]},{"a":"CALLE 26","b":"UNIVERSIDADES","rutas":8,"pico":29,"pref":["D","J","N"]},{"a":"CALLE 26","b":"CALLE 57","rutas":6,"pico":0,"pref":["B","D","J","K","N"]},{"a":"CALLE 57","b":"CALLE 76","rutas":4,"pico":0,"pref":["C","H","N"]},{"a":"AV. 68","b":"CALLE 76","rutas":2,"pico":0,"pref":["N"]},{"a":"AV. 68","b":"PORTAL 80","rutas":2,"pico":0,"pref":["N"]},{"a":"PORTAL 80","b":"QUIRIGUA","rutas":4,"pico":48,"pref":["D","H","N"]},{"a":"CRA. 90","b":"QUIRIGUA","rutas":4,"pico":48,"pref":["D","H","N"]},{"a":"AV. CALI","b":"CRA. 90","rutas":6,"pico":74,"pref":["B","D","H","N"]},{"a":"AV. CALI","b":"GRANJA - CRA. 77","rutas":6,"pico":78,"pref":["B","D","H","N"]},{"a":"GRANJA - CRA. 77","b":"MINUTO DE DIOS","rutas":7,"pico":90,"pref":["D","G","H","N"]},{"a":"BOYACA","b":"MINUTO DE DIOS","rutas":2,"pico":16,"pref":["N"]},{"a":"BOYACA","b":"FERIAS","rutas":4,"pico":49,"pref":["D","H","N"]},{"a":"AV. 68","b":"FERIAS","rutas":4,"pico":49,"pref":["D","H","N"]},{"a":"AV. 68","b":"CRA. 53","rutas":4,"pico":36,"pref":["B","D","N"]},{"a":"CRA. 47","b":"CRA. 53","rutas":4,"pico":36,"pref":["B","D","N"]},{"a":"CRA. 47","b":"ESCUELA MILITAR","rutas":4,"pico":26,"pref":["D","J","N"]},{"a":"CALLE 76","b":"POLO","rutas":4,"pico":41,"pref":["C","H","N"]},{"a":"CALLE 72","b":"CALLE 76","rutas":16,"pico":171,"pref":["A","B","C","D","H","N"]},{"a":"CALLE 72","b":"FLORES","rutas":6,"pico":75,"pref":["D","H","N"]},{"a":"CALLE 63","b":"FLORES","rutas":8,"pico":103,"pref":["B","D","H","N"]},{"a":"CALLE 57","b":"CALLE 63","rutas":6,"pico":75,"pref":["D","H","N"]},{"a":"CALLE 57","b":"MARLY","rutas":6,"pico":75,"pref":["D","H","N"]},{"a":"CALLE 45","b":"MARLY","rutas":8,"pico":103,"pref":["B","C","F","H","N"]},{"a":"AV. 39","b":"CALLE 45","rutas":5,"pico":43,"pref":["H","N"]},{"a":"AV. 39","b":"CALLE 34","rutas":5,"pico":42,"pref":["H","N"]},{"a":"CALLE 26","b":"CALLE 34","rutas":13,"pico":181,"pref":["B","C","D","F","H","N"]},{"a":"SANTA ISABEL","b":"U. NACIONAL","rutas":2,"pico":0,"pref":["N"]},{"a":"SAN MARTIN","b":"U. NACIONAL","rutas":2,"pico":0,"pref":["N"]},{"a":"NIZA - CALLE 127","b":"SAN MARTIN","rutas":2,"pico":0,"pref":["N"]},{"a":"NIZA - CALLE 127","b":"PORTAL SUBA","rutas":6,"pico":24,"pref":["C","H","L","N"]},{"a":"LA CAMPINA","b":"PORTAL SUBA","rutas":16,"pico":151,"pref":["B","C","F","G","H","J","N"]},{"a":"LA CAMPINA","b":"SUBA - TV. 91","rutas":9,"pico":105,"pref":["B","C","F","G","J","N"]},{"a":"21 ANGELES","b":"SUBA - TV. 91","rutas":6,"pico":64,"pref":["B","C","F","N"]},{"a":"21 ANGELES","b":"GRATAMIRA","rutas":2,"pico":17,"pref":["N"]},{"a":"GRATAMIRA","b":"SUBA - AV. BOYACA","rutas":2,"pico":16,"pref":["N"]},{"a":"NIZA - CALLE 127","b":"SUBA - AV. BOYACA","rutas":2,"pico":17,"pref":["N"]},{"a":"HUMEDAL CORDOBA","b":"NIZA - CALLE 127","rutas":4,"pico":49,"pref":["C","H","N"]},{"a":"AV. SUBA - CALLE 116","b":"HUMEDAL CORDOBA","rutas":2,"pico":16,"pref":["N"]},{"a":"AV. SUBA - CALLE 116","b":"PUENTELARGO","rutas":8,"pico":94,"pref":["B","C","F","G","N"]},{"a":"PUENTELARGO","b":"SUBA - CALLE 100","rutas":4,"pico":45,"pref":["C","F","N"]},{"a":"SUBA - CALLE 100","b":"SUBA - CALLE 95","rutas":8,"pico":101,"pref":["C","F","H","L","N"]},{"a":"RIONEGRO","b":"SUBA - CALLE 95","rutas":2,"pico":17,"pref":["N"]},{"a":"RIONEGRO","b":"SAN MARTIN","rutas":2,"pico":17,"pref":["N"]},{"a":"NQS - CALLE 75","b":"SAN MARTIN","rutas":2,"pico":17,"pref":["N"]},{"a":"ALCALA","b":"TERMINAL","rutas":4,"pico":0,"pref":["B","L","N"]},{"a":"ALCALA","b":"CALLE 76","rutas":2,"pico":0,"pref":["N"]},{"a":"CALLE 45","b":"CALLE 76","rutas":2,"pico":0,"pref":["N"]},{"a":"CALLE 45","b":"GUATOQUE - VERAGUAS","rutas":2,"pico":0,"pref":["N"]},{"a":"CALLE 187","b":"TERMINAL","rutas":8,"pico":82,"pref":["B","G","K","L","N"]},{"a":"CALLE 187","b":"PORTAL NORTE","rutas":2,"pico":21,"pref":["N"]},{"a":"PORTAL NORTE","b":"TOBERIN","rutas":13,"pico":137,"pref":["B","D","G","H","J","N"]},{"a":"CALLE 161","b":"TOBERIN","rutas":2,"pico":21,"pref":["N"]},{"a":"CALLE 161","b":"MAZUREN","rutas":4,"pico":51,"pref":["B","H","N"]},{"a":"CALLE 146","b":"MAZUREN","rutas":5,"pico":48,"pref":["A","B","G","N"]},{"a":"CALLE 142","b":"CALLE 146","rutas":6,"pico":65,"pref":["A","B","H","J","N"]},{"a":"ALCALA","b":"CALLE 142","rutas":3,"pico":27,"pref":["J","N"]},{"a":"ALCALA","b":"PRADO","rutas":6,"pico":49,"pref":["B","H","J","K","N"]},{"a":"CALLE 127","b":"PRADO","rutas":8,"pico":93,"pref":["B","G","H","J","N"]},{"a":"CALLE 127","b":"PEPE SIERRA","rutas":4,"pico":47,"pref":["B","L","N"]},{"a":"CALLE 106","b":"PEPE SIERRA","rutas":8,"pico":115,"pref":["B","D","F","G","N"]},{"a":"CALLE 100","b":"CALLE 106","rutas":6,"pico":67,"pref":["B","D","H","N"]},{"a":"CALLE 100","b":"VIRREY","rutas":5,"pico":55,"pref":["B","D","N"]},{"a":"CALLE 85","b":"VIRREY","rutas":11,"pico":108,"pref":["B","C","D","G","H","N"]},{"a":"CALLE 85","b":"HEROES","rutas":9,"pico":105,"pref":["B","C","F","G","N"]},{"a":"CALLE 76","b":"HEROES","rutas":7,"pico":61,"pref":["B","H","N"]},{"a":"CALLE 22","b":"CALLE 26","rutas":2,"pico":21,"pref":["N"]},{"a":"TERCER MILENIO","b":"TYGUA - SAN JOSE","rutas":2,"pico":21,"pref":["N"]},{"a":"GUATOQUE - VERAGUAS","b":"TYGUA - SAN JOSE","rutas":11,"pico":133,"pref":["B","C","G","H","L","M","N"]},{"a":"CALLE 146","b":"PEPE SIERRA","rutas":3,"pico":27,"pref":["A","B","G"]},{"a":"CALLE 76","b":"PEPE SIERRA","rutas":1,"pico":4,"pref":["A"]},{"a":"CALLE 57","b":"CALLE 72","rutas":4,"pico":35,"pref":["A","C","D","H"]},{"a":"MADELENA","b":"VENECIA","rutas":4,"pico":33,"pref":["A","B","G"]},{"a":"G. SANTANDER","b":"NQS - CALLE 30 SUR","rutas":2,"pico":14,"pref":["A","G"]},{"a":"NQS - CALLE 30 SUR","b":"SANTA ISABEL","rutas":2,"pico":14,"pref":["A","G"]},{"a":"CALLE 76","b":"SANTA ISABEL","rutas":2,"pico":15,"pref":["A","G"]},{"a":"CALLE 76","b":"FLORES","rutas":4,"pico":14,"pref":["A","D","G","H"]},{"a":"CALLE 146","b":"TOBERIN","rutas":8,"pico":80,"pref":["A","B","D","H","J"]},{"a":"CALLE 127","b":"CALLE 142","rutas":1,"pico":4,"pref":["A"]},{"a":"CALLE 127","b":"CALLE 76","rutas":1,"pico":3,"pref":["A"]},{"a":"AV. CALI","b":"PORTAL 80","rutas":3,"pico":1,"pref":["B","D","H"]},{"a":"AV. CALI","b":"CRA. 53","rutas":1,"pico":1,"pref":["B"]},{"a":"CALLE 85","b":"CRA. 53","rutas":2,"pico":1,"pref":["B","D"]},{"a":"ALCALA","b":"CALLE 85","rutas":3,"pico":1,"pref":["B","K"]},{"a":"ALCALA","b":"PORTAL NORTE","rutas":3,"pico":0,"pref":["B","D","G"]},{"a":"CRA. 90","b":"PORTAL 80","rutas":2,"pico":20,"pref":["B","D"]},{"a":"AV. 68","b":"GRANJA - CRA. 77","rutas":4,"pico":32,"pref":["B","D","J"]},{"a":"CALLE 85","b":"CRA. 47","rutas":2,"pico":20,"pref":["B","D"]},{"a":"ALCALA","b":"PEPE SIERRA","rutas":6,"pico":68,"pref":["B","D","H","K"]},{"a":"ALCALA","b":"CALLE 146","rutas":5,"pico":63,"pref":["B","D","F","H"]},{"a":"ALQUERIA","b":"PORTAL SUR","rutas":2,"pico":0,"pref":["B","G"]},{"a":"ALQUERIA","b":"RICAURTE","rutas":2,"pico":0,"pref":["B","G"]},{"a":"CAMPIN-UAN","b":"RICAURTE","rutas":2,"pico":0,"pref":["B","G"]},{"a":"CAMPIN-UAN","b":"HEROES","rutas":2,"pico":0,"pref":["B","G"]},{"a":"HEROES","b":"PEPE SIERRA","rutas":2,"pico":0,"pref":["B","G"]},{"a":"PEPE SIERRA","b":"TERMINAL","rutas":2,"pico":0,"pref":["B"]},{"a":"MADELENA","b":"PORTAL SUR","rutas":2,"pico":22,"pref":["B","G"]},{"a":"ALQUERIA","b":"NQS - CALLE 38A SUR","rutas":2,"pico":22,"pref":["B","G"]},{"a":"RICAURTE","b":"SANTA ISABEL","rutas":2,"pico":23,"pref":["B","G"]},{"a":"CAMPIN-UAN","b":"PALOQUEMAO","rutas":2,"pico":24,"pref":["B","G"]},{"a":"CAMPIN-UAN","b":"ESCUELA MILITAR","rutas":2,"pico":23,"pref":["B","G"]},{"a":"ESCUELA MILITAR","b":"HEROES","rutas":3,"pico":27,"pref":["B","G"]},{"a":"CALLE 106","b":"VIRREY","rutas":2,"pico":23,"pref":["B","G"]},{"a":"MAZUREN","b":"TOBERIN","rutas":2,"pico":24,"pref":["B","G"]},{"a":"CALLE 187","b":"TOBERIN","rutas":4,"pico":38,"pref":["B","G","K"]},{"a":"AV. EL DORADO","b":"RICAURTE","rutas":4,"pico":26,"pref":["B","G"]},{"a":"AV. EL DORADO","b":"SIMON BOLIVAR","rutas":2,"pico":0,"pref":["B","G"]},{"a":"CASTELLANA","b":"SIMON BOLIVAR","rutas":1,"pico":0,"pref":["B"]},{"a":"CALLE 127","b":"CASTELLANA","rutas":1,"pico":0,"pref":["B"]},{"a":"CALLE 127","b":"PORTAL NORTE","rutas":3,"pico":0,"pref":["B","F","G"]},{"a":"G. SANTANDER","b":"PERDOMO","rutas":2,"pico":23,"pref":["B","G"]},{"a":"COMUNEROS","b":"G. SANTANDER","rutas":2,"pico":25,"pref":["B","G"]},{"a":"SIMON BOLIVAR","b":"U. NACIONAL","rutas":6,"pico":78,"pref":["B","F","G"]},{"a":"NQS - CALLE 75","b":"SIMON BOLIVAR","rutas":3,"pico":26,"pref":["B","G"]},{"a":"CASTELLANA","b":"NQS - CALLE 75","rutas":3,"pico":26,"pref":["B","G"]},{"a":"CALLE 100","b":"CASTELLANA","rutas":3,"pico":26,"pref":["B","G"]},{"a":"CALLE 100","b":"CALLE 127","rutas":8,"pico":100,"pref":["B","F","G","H"]},{"a":"CALLE 142","b":"PRADO","rutas":6,"pico":59,"pref":["B","G","H","J"]},{"a":"CALLE 142","b":"TOBERIN","rutas":4,"pico":27,"pref":["B","G","J"]},{"a":"BIBLIOTECA","b":"PORTAL TUNAL","rutas":2,"pico":23,"pref":["B","H"]},{"a":"BIBLIOTECA","b":"QUIROGA","rutas":2,"pico":23,"pref":["B","H"]},{"a":"QUIROGA","b":"RESTREPO","rutas":4,"pico":49,"pref":["B","C","H"]},{"a":"HORTUA","b":"RESTREPO","rutas":6,"pico":72,"pref":["B","C","H","K"]},{"a":"HORTUA","b":"TERCER MILENIO","rutas":2,"pico":25,"pref":["B","H"]},{"a":"CALLE 22","b":"TERCER MILENIO","rutas":4,"pico":26,"pref":["B","H","K","L"]},{"a":"AV. 39","b":"CALLE 22","rutas":2,"pico":27,"pref":["B","H"]},{"a":"AV. 39","b":"CALLE 63","rutas":2,"pico":27,"pref":["B","H"]},{"a":"CALLE 85","b":"FLORES","rutas":2,"pico":25,"pref":["B","H"]},{"a":"CALLE 100","b":"CALLE 85","rutas":4,"pico":63,"pref":["B","F","H"]},{"a":"CALLE 106","b":"CALLE 142","rutas":2,"pico":25,"pref":["B","H"]},{"a":"CALLE 142","b":"MAZUREN","rutas":2,"pico":28,"pref":["B","H"]},{"a":"CALLE 161","b":"PORTAL NORTE","rutas":2,"pico":28,"pref":["B","H"]},{"a":"PORTAL TUNAL","b":"QUIROGA","rutas":2,"pico":0,"pref":["B","H"]},{"a":"CALLE 22","b":"QUIROGA","rutas":2,"pico":0,"pref":["B","H"]},{"a":"CALLE 22","b":"FLORES","rutas":2,"pico":0,"pref":["B","H"]},{"a":"CALLE 100","b":"FLORES","rutas":1,"pico":0,"pref":["B"]},{"a":"CALLE 100","b":"PORTAL NORTE","rutas":5,"pico":0,"pref":["B","H"]},{"a":"BANDERAS","b":"PRADERA","rutas":2,"pico":35,"pref":["B","F"]},{"a":"PRADERA","b":"RICAURTE","rutas":2,"pico":35,"pref":["B","F"]},{"a":"CALLE 26","b":"RICAURTE","rutas":4,"pico":37,"pref":["B","F"]},{"a":"CALLE 34","b":"CALLE 45","rutas":6,"pico":93,"pref":["B","D","F","H","L"]},{"a":"HEROES","b":"MARLY","rutas":4,"pico":37,"pref":["B","F"]},{"a":"ALCALA","b":"CALLE 127","rutas":4,"pico":62,"pref":["B","F","L"]},{"a":"CALLE 146","b":"PORTAL NORTE","rutas":2,"pico":37,"pref":["B","F"]},{"a":"PORTAL AMERICAS","b":"TV. 86","rutas":1,"pico":0,"pref":["B"]},{"a":"BANDERAS","b":"RICAURTE","rutas":4,"pico":0,"pref":["B","F","M"]},{"a":"CALLE 26","b":"MARLY","rutas":2,"pico":0,"pref":["B","F"]},{"a":"CALLE 100","b":"HEROES","rutas":6,"pico":34,"pref":["B","F","H"]},{"a":"AV. ROJAS","b":"PORTAL ELDORADO","rutas":4,"pico":14,"pref":["B","K"]},{"a":"AV. ROJAS","b":"QUINTA PAREDES","rutas":2,"pico":0,"pref":["B","K"]},{"a":"PEPE SIERRA","b":"QUINTA PAREDES","rutas":2,"pico":0,"pref":["B","K"]},{"a":"AV. ROJAS","b":"MODELIA","rutas":4,"pico":41,"pref":["B","H","K"]},{"a":"CAN","b":"QUINTA PAREDES","rutas":4,"pico":40,"pref":["B","H","K"]},{"a":"AV. EL DORADO","b":"RECINTO FERIAL","rutas":2,"pico":19,"pref":["B","K"]},{"a":"AV. CHILE","b":"AV. EL DORADO","rutas":2,"pico":20,"pref":["B","K"]},{"a":"AV. CHILE","b":"PEPE SIERRA","rutas":2,"pico":20,"pref":["B","K"]},{"a":"ALCALA","b":"TOBERIN","rutas":6,"pico":90,"pref":["B","G","H","K"]},{"a":"BICENTENARIO","b":"CALLE 34","rutas":2,"pico":0,"pref":["B","L"]},{"a":"CALLE 34","b":"CALLE 63","rutas":4,"pico":31,"pref":["B","C","F","L"]},{"a":"CALLE 63","b":"VIRREY","rutas":4,"pico":23,"pref":["B","L"]},{"a":"ALCALA","b":"VIRREY","rutas":3,"pico":7,"pref":["B","L"]},{"a":"AV. 1 DE MAYO","b":"SAN BERNARDO","rutas":2,"pico":21,"pref":["B","L"]},{"a":"BICENTENARIO","b":"TERCER MILENIO","rutas":4,"pico":40,"pref":["B","K","L"]},{"a":"CALLE 34","b":"TERCER MILENIO","rutas":2,"pico":23,"pref":["B","L"]},{"a":"CALLE 45","b":"CALLE 63","rutas":2,"pico":23,"pref":["B","L"]},{"a":"PEPE SIERRA","b":"VIRREY","rutas":2,"pico":26,"pref":["B","L"]},{"a":"ALCALA","b":"CALLE 187","rutas":2,"pico":25,"pref":["B","L"]},{"a":"PORTAL ELDORADO","b":"SALITRE - EL GRECO","rutas":2,"pico":0,"pref":["B","K"]},{"a":"CALLE 26","b":"SALITRE - EL GRECO","rutas":2,"pico":0,"pref":["B","K"]},{"a":"CALLE 57","b":"CALLE 85","rutas":4,"pico":14,"pref":["B","K"]},{"a":"CIUDAD UNIVERSITARIA","b":"GOBERNACION","rutas":4,"pico":35,"pref":["B","K","L"]},{"a":"CALLE 26","b":"CONCEJO DE BOGOTA","rutas":2,"pico":14,"pref":["B","K"]},{"a":"CALLE 26","b":"CALLE 45","rutas":2,"pico":14,"pref":["B","K"]},{"a":"CALLE 45","b":"CALLE 57","rutas":2,"pico":15,"pref":["B","K"]},{"a":"CALLE 85","b":"PRADO","rutas":2,"pico":14,"pref":["B","K"]},{"a":"CALLE 40 S.","b":"PORTAL TUNAL","rutas":8,"pico":26,"pref":["B","C","D","H"]},{"a":"AV. JIMENEZ","b":"CALLE 40 S.","rutas":7,"pico":54,"pref":["B","D","H"]},{"a":"AV. JIMENEZ","b":"MARLY","rutas":6,"pico":52,"pref":["B","H"]},{"a":"CALLE 72","b":"MARLY","rutas":3,"pico":21,"pref":["B","H"]},{"a":"CALLE 76","b":"CALLE 85","rutas":2,"pico":21,"pref":["B","H"]},{"a":"PORTAL NORTE","b":"VIRREY","rutas":4,"pico":20,"pref":["B","H"]},{"a":"AV. JIMENEZ","b":"CALLE 72","rutas":2,"pico":0,"pref":["B","H"]},{"a":"CALLE 72","b":"VIRREY","rutas":2,"pico":0,"pref":["B","H"]},{"a":"BANDERAS","b":"ZONA INDUSTRIAL","rutas":2,"pico":49,"pref":["B","F"]},{"a":"CAD","b":"CDS - CRA. 32","rutas":4,"pico":50,"pref":["B","F"]},{"a":"CAD","b":"U. NACIONAL","rutas":5,"pico":85,"pref":["B","C","F","G"]},{"a":"AV. CHILE","b":"CASTELLANA","rutas":4,"pico":78,"pref":["B","F","H"]},{"a":"CALLE 106","b":"CASTELLANA","rutas":2,"pico":50,"pref":["B","F"]},{"a":"PEPE SIERRA","b":"PRADO","rutas":2,"pico":51,"pref":["B","F"]},{"a":"PORTAL NORTE","b":"PRADO","rutas":6,"pico":49,"pref":["B","F","J"]},{"a":"BANDERAS","b":"CDS - CRA. 32","rutas":2,"pico":0,"pref":["B","F"]},{"a":"AV. CHILE","b":"CAD","rutas":2,"pico":0,"pref":["B","F"]},{"a":"AV. CHILE","b":"CALLE 106","rutas":2,"pico":0,"pref":["B","F"]},{"a":"CALLE 106","b":"PORTAL NORTE","rutas":3,"pico":0,"pref":["B","F","H"]},{"a":"SAN MATEO","b":"TERREROS","rutas":7,"pico":101,"pref":["B","G","K","L"]},{"a":"LEON XIII","b":"TERREROS","rutas":4,"pico":71,"pref":["B","G","K"]},{"a":"LA DESPENSA","b":"LEON XIII","rutas":4,"pico":73,"pref":["B","G","K"]},{"a":"BOSA","b":"LA DESPENSA","rutas":2,"pico":40,"pref":["B","G"]},{"a":"BOSA","b":"COMUNEROS","rutas":4,"pico":43,"pref":["B","G"]},{"a":"COMUNEROS","b":"PALOQUEMAO","rutas":2,"pico":41,"pref":["B","G"]},{"a":"PALOQUEMAO","b":"U. NACIONAL","rutas":4,"pico":69,"pref":["B","D","G"]},{"a":"CAMPIN-UAN","b":"SIMON BOLIVAR","rutas":2,"pico":42,"pref":["B","G"]},{"a":"CALLE 100","b":"SIMON BOLIVAR","rutas":4,"pico":46,"pref":["B","G"]},{"a":"ALCALA","b":"CALLE 100","rutas":3,"pico":45,"pref":["B","G"]},{"a":"BOSA","b":"TERREROS","rutas":3,"pico":33,"pref":["B","G","L"]},{"a":"COMUNEROS","b":"U. NACIONAL","rutas":2,"pico":2,"pref":["B","G"]},{"a":"21 ANGELES","b":"SUBA - AV. BOYACA","rutas":4,"pico":47,"pref":["B","C","F"]},{"a":"AV. SUBA - CALLE 116","b":"SUBA - AV. BOYACA","rutas":2,"pico":11,"pref":["B","C"]},{"a":"PUENTELARGO","b":"RIONEGRO","rutas":4,"pico":43,"pref":["B","C","H"]},{"a":"HEROES","b":"RIONEGRO","rutas":2,"pico":11,"pref":["B","C"]},{"a":"CALLE 142","b":"VIRREY","rutas":2,"pico":12,"pref":["B","C"]},{"a":"CALLE 142","b":"CALLE 161","rutas":2,"pico":12,"pref":["B","C"]},{"a":"PORTAL SUBA","b":"SUBA - TV. 91","rutas":2,"pico":4,"pref":["B"]},{"a":"HEROES","b":"SUBA - TV. 91","rutas":1,"pico":0,"pref":["B"]},{"a":"CALLE 161","b":"HEROES","rutas":2,"pico":0,"pref":["B","C"]},{"a":"BANDERAS","b":"MARSELLA","rutas":3,"pico":6,"pref":["B","C","F"]},{"a":"AV. 39","b":"MARSELLA","rutas":1,"pico":6,"pref":["B"]},{"a":"AV. 39","b":"CALLE 76","rutas":1,"pico":7,"pref":["B"]},{"a":"HEROES","b":"VIRREY","rutas":3,"pico":7,"pref":["B","J"]},{"a":"GRANJA - CRA. 77","b":"PORTAL 80","rutas":13,"pico":76,"pref":["B","D","G","H","J"]},{"a":"GRANJA - CRA. 77","b":"HEROES","rutas":1,"pico":5,"pref":["B"]},{"a":"ESCUELA MILITAR","b":"SUBA - TV. 91","rutas":1,"pico":3,"pref":["B"]},{"a":"PORTAL TUNAL","b":"SANTA LUCIA","rutas":1,"pico":10,"pref":["B"]},{"a":"CALLE 40 S.","b":"OLAYA","rutas":4,"pico":46,"pref":["B","C","H"]},{"a":"RESTREPO","b":"TYGUA - SAN JOSE","rutas":1,"pico":11,"pref":["B"]},{"a":"GUATOQUE - VERAGUAS","b":"PALOQUEMAO","rutas":3,"pico":39,"pref":["B","H"]},{"a":"HEROES","b":"PALOQUEMAO","rutas":1,"pico":12,"pref":["B"]},{"a":"CALLE 100","b":"CALLE 146","rutas":1,"pico":11,"pref":["B"]},{"a":"MOLINOS","b":"OLAYA","rutas":2,"pico":24,"pref":["B","H"]},{"a":"FUCHA","b":"OLAYA","rutas":3,"pico":31,"pref":["B","H"]},{"a":"HOSPITAL","b":"NARINO","rutas":2,"pico":26,"pref":["B","H"]},{"a":"HOSPITAL","b":"TYGUA - SAN JOSE","rutas":2,"pico":27,"pref":["B","H"]},{"a":"MOVISTAR ARENA","b":"PALOQUEMAO","rutas":2,"pico":26,"pref":["B","H"]},{"a":"AV. CHILE","b":"MOVISTAR ARENA","rutas":4,"pico":52,"pref":["B","C","H","L"]},{"a":"CASTELLANA","b":"PEPE SIERRA","rutas":2,"pico":29,"pref":["B","H"]},{"a":"MOLINOS","b":"NARINO","rutas":1,"pico":0,"pref":["B"]},{"a":"NARINO","b":"PEPE SIERRA","rutas":1,"pico":0,"pref":["B"]},{"a":"PEPE SIERRA","b":"TOBERIN","rutas":4,"pico":0,"pref":["B","G","H","K"]},{"a":"AGUAS","b":"CALLE 19","rutas":2,"pico":0,"pref":["B","J"]},{"a":"AV. 39","b":"CALLE 19","rutas":2,"pico":0,"pref":["B","J"]},{"a":"AV. 39","b":"HEROES","rutas":4,"pico":0,"pref":["B","J"]},{"a":"HEROES","b":"PRADO","rutas":4,"pico":0,"pref":["B","J"]},{"a":"AV. 39","b":"UNIVERSIDADES","rutas":4,"pico":0,"pref":["B","J"]},{"a":"AV. 39","b":"CALLE 57","rutas":6,"pico":38,"pref":["B","C","D","H","J"]},{"a":"CALLE 57","b":"HEROES","rutas":2,"pico":0,"pref":["B","J"]},{"a":"PRADO","b":"VIRREY","rutas":2,"pico":0,"pref":["B","J"]},{"a":"CALLE 40 S.","b":"RESTREPO","rutas":4,"pico":47,"pref":["B","H","K"]},{"a":"NARINO","b":"RESTREPO","rutas":2,"pico":28,"pref":["B","H"]},{"a":"AV. JIMENEZ","b":"HORTUA","rutas":2,"pico":30,"pref":["B","H"]},{"a":"CALLE 63","b":"MARLY","rutas":4,"pico":67,"pref":["B","C","F","H"]},{"a":"CALLE 63","b":"CALLE 72","rutas":6,"pico":99,"pref":["B","C","F","H"]},{"a":"CALLE 40 S.","b":"MOLINOS","rutas":5,"pico":19,"pref":["B","H","K"]},{"a":"CALLE 40 S.","b":"NARINO","rutas":4,"pico":0,"pref":["B","D","H"]},{"a":"AV. JIMENEZ","b":"NARINO","rutas":2,"pico":0,"pref":["B","H"]},{"a":"CALLE 19","b":"CALLE 40 S.","rutas":2,"pico":0,"pref":["C","H"]},{"a":"CALLE 19","b":"CALLE 76","rutas":1,"pico":0,"pref":["C"]},{"a":"CALLE 76","b":"NIZA - CALLE 127","rutas":2,"pico":0,"pref":["C","H"]},{"a":"PARQUE","b":"PORTAL TUNAL","rutas":4,"pico":60,"pref":["C","D","H"]},{"a":"CALLE 40 S.","b":"PARQUE","rutas":2,"pico":30,"pref":["C","H"]},{"a":"OLAYA","b":"TERCER MILENIO","rutas":2,"pico":29,"pref":["C","H"]},{"a":"CALLE 22","b":"CALLE 45","rutas":2,"pico":30,"pref":["C","H"]},{"a":"CALLE 76","b":"MARLY","rutas":3,"pico":31,"pref":["C","H"]},{"a":"CALLE 76","b":"ESCUELA MILITAR","rutas":2,"pico":31,"pref":["C","H"]},{"a":"ESCUELA MILITAR","b":"RIONEGRO","rutas":2,"pico":31,"pref":["C","H"]},{"a":"HUMEDAL CORDOBA","b":"PUENTELARGO","rutas":2,"pico":31,"pref":["C","H"]},{"a":"GRATAMIRA","b":"NIZA - CALLE 127","rutas":2,"pico":31,"pref":["C","H"]},{"a":"GRATAMIRA","b":"PORTAL SUBA","rutas":2,"pico":33,"pref":["C","H"]},{"a":"CONSUELO","b":"SANTA LUCIA","rutas":2,"pico":24,"pref":["C","H"]},{"a":"QUIROGA","b":"SANTA LUCIA","rutas":2,"pico":25,"pref":["C","H"]},{"a":"AV. 39","b":"HORTUA","rutas":2,"pico":25,"pref":["C","H"]},{"a":"POLO","b":"SAN MARTIN","rutas":2,"pico":26,"pref":["C","H"]},{"a":"SAN MARTIN","b":"SUBA - CALLE 95","rutas":2,"pico":25,"pref":["C","H"]},{"a":"AV. SUBA - CALLE 116","b":"SUBA - CALLE 100","rutas":2,"pico":25,"pref":["C","H"]},{"a":"AV. SUBA - CALLE 116","b":"LA CAMPINA","rutas":4,"pico":55,"pref":["C","F","H"]},{"a":"MOLINOS","b":"RESTREPO","rutas":2,"pico":0,"pref":["C","H"]},{"a":"CALLE 57","b":"RESTREPO","rutas":2,"pico":0,"pref":["C","H"]},{"a":"AV. SUBA - CALLE 116","b":"CALLE 76","rutas":2,"pico":0,"pref":["C","H"]},{"a":"AV. SUBA - CALLE 116","b":"PORTAL SUBA","rutas":5,"pico":0,"pref":["C","F","H"]},{"a":"MARSELLA","b":"RICAURTE","rutas":2,"pico":0,"pref":["C","F"]},{"a":"CALLE 19","b":"RICAURTE","rutas":2,"pico":0,"pref":["C","F"]},{"a":"CALLE 19","b":"CALLE 72","rutas":2,"pico":0,"pref":["C","F"]},{"a":"CALLE 72","b":"LA CAMPINA","rutas":2,"pico":0,"pref":["C","F"]},{"a":"MANDALAY","b":"MARSELLA","rutas":2,"pico":35,"pref":["C","F"]},{"a":"DISTRITO GRAFITI","b":"MARSELLA","rutas":2,"pico":34,"pref":["C","F"]},{"a":"CRA. 43","b":"DISTRITO GRAFITI","rutas":2,"pico":34,"pref":["C","F"]},{"a":"RICAURTE","b":"ZONA INDUSTRIAL","rutas":2,"pico":35,"pref":["C","F"]},{"a":"DE LA SABANA","b":"RICAURTE","rutas":2,"pico":36,"pref":["C","F"]},{"a":"CALLE 19","b":"DE LA SABANA","rutas":2,"pico":36,"pref":["C","F"]},{"a":"CALLE 19","b":"CALLE 26","rutas":6,"pico":80,"pref":["C","D","F","H"]},{"a":"CALLE 34","b":"MARLY","rutas":2,"pico":37,"pref":["C","F"]},{"a":"CALLE 72","b":"SUBA - CALLE 95","rutas":2,"pico":36,"pref":["C","F"]},{"a":"SUBA - AV. BOYACA","b":"SUBA - CALLE 100","rutas":2,"pico":35,"pref":["C","F"]},{"a":"BICENTENARIO","b":"PORTAL 20 DE JULIO","rutas":2,"pico":0,"pref":["C","L"]},{"a":"BICENTENARIO","b":"MOVISTAR ARENA","rutas":2,"pico":0,"pref":["C","L"]},{"a":"MOVISTAR ARENA","b":"SUBA - CALLE 100","rutas":2,"pico":0,"pref":["C","L"]},{"a":"PORTAL SUBA","b":"SUBA - CALLE 100","rutas":2,"pico":0,"pref":["C","L"]},{"a":"BICENTENARIO","b":"TYGUA - SAN JOSE","rutas":4,"pico":56,"pref":["C","G","L"]},{"a":"CAMPIN-UAN","b":"GUATOQUE - VERAGUAS","rutas":2,"pico":23,"pref":["C","L"]},{"a":"AV. CHILE","b":"SUBA - CALLE 95","rutas":2,"pico":24,"pref":["C","L"]},{"a":"NIZA - CALLE 127","b":"SUBA - CALLE 100","rutas":2,"pico":24,"pref":["C","L"]},{"a":"BANDERAS","b":"CALLE 26","rutas":4,"pico":30,"pref":["C","F"]},{"a":"CALLE 72","b":"SUBA - CALLE 100","rutas":2,"pico":31,"pref":["C","F"]},{"a":"CALLE 26","b":"CALLE 72","rutas":2,"pico":0,"pref":["C","F"]},{"a":"AV. SUBA - CALLE 116","b":"CALLE 72","rutas":2,"pico":0,"pref":["C","F"]},{"a":"PORTAL SUR","b":"VENECIA","rutas":2,"pico":32,"pref":["C","G"]},{"a":"G. SANTANDER","b":"VENECIA","rutas":4,"pico":64,"pref":["C","G","K"]},{"a":"CAD","b":"RICAURTE","rutas":6,"pico":69,"pref":["C","G","K"]},{"a":"CAMPIN-UAN","b":"NQS - CALLE 75","rutas":2,"pico":37,"pref":["C","G"]},{"a":"NQS - CALLE 75","b":"SUBA - CALLE 95","rutas":2,"pico":38,"pref":["C","G"]},{"a":"PUENTELARGO","b":"SUBA - CALLE 95","rutas":2,"pico":37,"pref":["C","G"]},{"a":"AV. SUBA - CALLE 116","b":"SUBA - TV. 91","rutas":2,"pico":38,"pref":["C","G"]},{"a":"CAD","b":"G. SANTANDER","rutas":1,"pico":0,"pref":["C"]},{"a":"PUENTELARGO","b":"U. NACIONAL","rutas":2,"pico":0,"pref":["C","G"]},{"a":"PORTAL SUBA","b":"PUENTELARGO","rutas":1,"pico":0,"pref":["C"]},{"a":"AV. SUBA - CALLE 116","b":"HEROES","rutas":1,"pico":0,"pref":["C"]},{"a":"CIUDAD UNIVERSITARIA","b":"UNIVERSIDADES","rutas":2,"pico":5,"pref":["C","J"]},{"a":"CIUDAD UNIVERSITARIA","b":"SAN MARTIN","rutas":2,"pico":6,"pref":["C","J"]},{"a":"PORTAL SUBA","b":"SAN MARTIN","rutas":1,"pico":0,"pref":["C"]},{"a":"ALCALA","b":"CALLE 106","rutas":1,"pico":0,"pref":["D"]},{"a":"CALLE 106","b":"CALLE 85","rutas":1,"pico":0,"pref":["D"]},{"a":"CRA. 53","b":"GRANJA - CRA. 77","rutas":1,"pico":0,"pref":["D"]},{"a":"CALLE 40 S.","b":"PORTAL USME","rutas":3,"pico":2,"pref":["D","H"]},{"a":"AV. JIMENEZ","b":"CALLE 45","rutas":2,"pico":0,"pref":["D","H"]},{"a":"CALLE 45","b":"POLO","rutas":4,"pico":33,"pref":["D","H"]},{"a":"GRANJA - CRA. 77","b":"POLO","rutas":2,"pico":0,"pref":["D","H"]},{"a":"AV. 68","b":"POLO","rutas":2,"pico":33,"pref":["D","H"]},{"a":"BOYACA","b":"GRANJA - CRA. 77","rutas":2,"pico":35,"pref":["D","H"]},{"a":"BIBLIOTECA","b":"PARQUE","rutas":2,"pico":31,"pref":["D","H"]},{"a":"BIBLIOTECA","b":"SANTA LUCIA","rutas":2,"pico":31,"pref":["D","H"]},{"a":"CALLE 40 S.","b":"FUCHA","rutas":2,"pico":34,"pref":["D","H"]},{"a":"AV. 39","b":"NARINO","rutas":2,"pico":35,"pref":["D","H"]},{"a":"AV. 39","b":"MARLY","rutas":2,"pico":39,"pref":["D","H"]},{"a":"CALLE 76","b":"MINUTO DE DIOS","rutas":3,"pico":47,"pref":["D","H"]},{"a":"MARLY","b":"NARINO","rutas":2,"pico":0,"pref":["D","H"]},{"a":"FLORES","b":"MARLY","rutas":2,"pico":0,"pref":["D","H"]},{"a":"AV. CALI","b":"CALLE 76","rutas":2,"pico":0,"pref":["D","H"]},{"a":"AV. CHILE","b":"RICAURTE","rutas":2,"pico":0,"pref":["D","G"]},{"a":"AV. CHILE","b":"GRANJA - CRA. 77","rutas":2,"pico":0,"pref":["D","G"]},{"a":"PORTAL SUR","b":"SEVILLANA","rutas":2,"pico":24,"pref":["D","G"]},{"a":"G. SANTANDER","b":"SEVILLANA","rutas":2,"pico":25,"pref":["D","G"]},{"a":"G. SANTANDER","b":"SENA","rutas":4,"pico":58,"pref":["D","G","K"]},{"a":"RICAURTE","b":"SENA","rutas":4,"pico":58,"pref":["D","G","K"]},{"a":"AV. CHILE","b":"U. NACIONAL","rutas":2,"pico":27,"pref":["D","G"]},{"a":"CRA. 47","b":"NQS - CALLE 75","rutas":2,"pico":28,"pref":["D","G"]},{"a":"AV. 68","b":"CRA. 47","rutas":4,"pico":37,"pref":["D","G","J"]},{"a":"AV. 68","b":"MINUTO DE DIOS","rutas":2,"pico":28,"pref":["D","G"]},{"a":"CALLE 57","b":"ESCUELA MILITAR","rutas":4,"pico":13,"pref":["D","J"]},{"a":"ESCUELA MILITAR","b":"PORTAL 80","rutas":1,"pico":1,"pref":["D"]},{"a":"AV. 39","b":"CALLE 26","rutas":3,"pico":19,"pref":["D","J"]},{"a":"CALLE 34","b":"PORTAL AMERICAS","rutas":1,"pico":5,"pref":["D"]},{"a":"CALLE 34","b":"CALLE 57","rutas":1,"pico":6,"pref":["D"]},{"a":"AV. JIMENEZ","b":"PORTAL USME","rutas":1,"pico":6,"pref":["D"]},{"a":"AV. 39","b":"ESCUELA MILITAR","rutas":1,"pico":7,"pref":["D"]},{"a":"BANDERAS","b":"CAD","rutas":2,"pico":13,"pref":["E","F"]},{"a":"CAD","b":"SIMON BOLIVAR","rutas":1,"pico":14,"pref":["E"]},{"a":"AGUAS","b":"AV. JIMENEZ","rutas":2,"pico":0,"pref":["F","J"]},{"a":"AV. AMERICAS - AV. BOYACA","b":"RICAURTE","rutas":4,"pico":40,"pref":["F","J"]},{"a":"AV. AMERICAS - AV. BOYACA","b":"BANDERAS","rutas":4,"pico":38,"pref":["F","J"]},{"a":"AGUAS","b":"MUSEO DEL ORO","rutas":3,"pico":46,"pref":["F","J"]},{"a":"AV. JIMENEZ","b":"MUSEO DEL ORO","rutas":3,"pico":45,"pref":["F","J"]},{"a":"AV. JIMENEZ","b":"SAN FACON - CRA. 22","rutas":2,"pico":41,"pref":["F","J"]},{"a":"BANDERAS","b":"PATIO BONITO","rutas":2,"pico":32,"pref":["F","J"]},{"a":"CAD","b":"NQS - CALLE 75","rutas":1,"pico":0,"pref":["F"]},{"a":"LAS NIEVES","b":"MUSEO NACIONAL","rutas":3,"pico":0,"pref":["F","G","M"]},{"a":"LAS NIEVES","b":"RICAURTE","rutas":4,"pico":17,"pref":["F","M"]},{"a":"CALLE 76","b":"GRANJA - CRA. 77","rutas":1,"pico":0,"pref":["F"]},{"a":"CALLE 34","b":"CALLE 76","rutas":1,"pico":0,"pref":["F"]},{"a":"BANDERAS","b":"CALLE 34","rutas":1,"pico":0,"pref":["F"]},{"a":"TERMINAL","b":"TOBERIN","rutas":2,"pico":0,"pref":["G","K"]},{"a":"LA CAMPINA","b":"PUENTELARGO","rutas":1,"pico":0,"pref":["G"]},{"a":"RICAURTE","b":"U. NACIONAL","rutas":1,"pico":0,"pref":["G"]},{"a":"BICENTENARIO","b":"GUATOQUE - VERAGUAS","rutas":2,"pico":0,"pref":["G","L"]},{"a":"GUATOQUE - VERAGUAS","b":"SAN MATEO","rutas":2,"pico":0,"pref":["G","L"]},{"a":"BOSA","b":"GUATOQUE - VERAGUAS","rutas":2,"pico":32,"pref":["G","L"]},{"a":"CAD","b":"RECINTO FERIAL","rutas":4,"pico":35,"pref":["G","K"]},{"a":"G. SANTANDER","b":"LA DESPENSA","rutas":2,"pico":0,"pref":["G","K"]},{"a":"LA DESPENSA","b":"SAN MATEO","rutas":2,"pico":0,"pref":["G","K"]},{"a":"EL TIEMPO - MALOKA","b":"NORMANDIA","rutas":2,"pico":23,"pref":["G","K"]},{"a":"GOBERNACION","b":"SALITRE - EL GRECO","rutas":2,"pico":23,"pref":["G","K"]},{"a":"LA DESPENSA","b":"VENECIA","rutas":2,"pico":32,"pref":["G","K"]},{"a":"BOSA","b":"SAN MATEO","rutas":1,"pico":2,"pref":["G"]},{"a":"COMUNEROS","b":"SAN VICTORINO","rutas":2,"pico":0,"pref":["G","M"]},{"a":"COMUNEROS","b":"PORTAL SUR","rutas":2,"pico":0,"pref":["G","M"]},{"a":"SAN VICTORINO","b":"TYGUA - SAN JOSE","rutas":2,"pico":19,"pref":["G","M"]},{"a":"COMUNEROS","b":"GUATOQUE - VERAGUAS","rutas":2,"pico":19,"pref":["G","M"]},{"a":"COMUNEROS","b":"SEVILLANA","rutas":2,"pico":19,"pref":["G","M"]},{"a":"PERDOMO","b":"SEVILLANA","rutas":2,"pico":19,"pref":["G","M"]},{"a":"FLORES","b":"SANTA ISABEL","rutas":1,"pico":0,"pref":["G"]},{"a":"G. SANTANDER","b":"SANTA ISABEL","rutas":1,"pico":0,"pref":["G"]},{"a":"CALLE 106","b":"FLORES","rutas":1,"pico":0,"pref":["H"]},{"a":"CALLE 22","b":"CALLE 76","rutas":1,"pico":0,"pref":["H"]},{"a":"AV. JIMENEZ","b":"PORTAL TUNAL","rutas":1,"pico":0,"pref":["H"]},{"a":"CAN","b":"PORTAL ELDORADO","rutas":2,"pico":0,"pref":["H","K"]},{"a":"CAN","b":"CONCEJO DE BOGOTA","rutas":2,"pico":0,"pref":["H","K"]},{"a":"CONCEJO DE BOGOTA","b":"HORTUA","rutas":4,"pico":20,"pref":["H","K"]},{"a":"CALLE 40 S.","b":"HORTUA","rutas":2,"pico":0,"pref":["H","K"]},{"a":"MOVISTAR ARENA","b":"PEPE SIERRA","rutas":1,"pico":0,"pref":["H"]},{"a":"MOVISTAR ARENA","b":"NARINO","rutas":1,"pico":0,"pref":["H"]},{"a":"NARINO","b":"PORTAL USME","rutas":1,"pico":0,"pref":["H"]},{"a":"CALLE 127","b":"TOBERIN","rutas":1,"pico":0,"pref":["H"]},{"a":"CALLE 127","b":"CALLE 45","rutas":2,"pico":7,"pref":["H"]},{"a":"CALLE 45","b":"OLAYA","rutas":1,"pico":0,"pref":["H"]},{"a":"OLAYA","b":"PORTAL TUNAL","rutas":1,"pico":0,"pref":["H"]},{"a":"CALLE 19","b":"FUCHA","rutas":1,"pico":6,"pref":["H"]},{"a":"ESCUELA MILITAR","b":"GRANJA - CRA. 77","rutas":1,"pico":0,"pref":["J"]},{"a":"AV. JIMENEZ","b":"CALLE 127","rutas":1,"pico":6,"pref":["J"]},{"a":"NIZA - CALLE 127","b":"SUBA - TV. 91","rutas":1,"pico":5,"pref":["J"]},{"a":"NIZA - CALLE 127","b":"PUENTELARGO","rutas":1,"pico":6,"pref":["J"]},{"a":"PUENTELARGO","b":"SAN MARTIN","rutas":1,"pico":6,"pref":["J"]},{"a":"AV. 1 DE MAYO","b":"TERCER MILENIO","rutas":2,"pico":0,"pref":["K","L"]},{"a":"CALLE 22","b":"GOBERNACION","rutas":2,"pico":0,"pref":["K","L"]},{"a":"GOBERNACION","b":"PORTAL ELDORADO","rutas":2,"pico":0,"pref":["K","L"]},{"a":"CIUDAD JARDIN-UAN","b":"SAN BERNARDO","rutas":2,"pico":18,"pref":["K","L"]},{"a":"CENTRO MEMORIA","b":"CIUDAD UNIVERSITARIA","rutas":2,"pico":19,"pref":["K","L"]},{"a":"NORMANDIA","b":"SALITRE - EL GRECO","rutas":2,"pico":18,"pref":["K","L"]},{"a":"PORTAL ELDORADO","b":"RECINTO FERIAL","rutas":1,"pico":1,"pref":["K"]},{"a":"MUSEO NACIONAL","b":"SAN VICTORINO","rutas":1,"pico":0,"pref":["M"]}],"viaje":{"origen":"PORTAL AMERICAS","destino":"CALLE 100","consulta":"07:40","tramos":[{"ruta":"E32","sube":"PORTAL AMERICAS","baja":"SIMON BOLIVAR","paradas":["PORTAL AMERICAS","BANDERAS","CAD","SIMON BOLIVAR"],"hora_sube":"07:45","hora_baja":"07:47","n":3},{"ruta":"B44-1","sube":"SIMON BOLIVAR","baja":"CALLE 100","paradas":["SIMON BOLIVAR","CALLE 100"],"hora_sube":"07:47","hora_baja":"07:48","n":1}],"total":4},"panel":{"nombre":"RICAURTE","buses":4446,"rutas":45,"proximos":[["07:40","4-3"],["07:40","B14-1"],["07:40","C19-2"],["07:40","F14-2"],["07:40","G12-2"],["07:40","G30-2"]]},"ranking":[[4446,"RICAURTE"],[3282,"PORTAL NORTE"],[3038,"BANDERAS"],[2684,"AV. JIMENEZ"],[2500,"PORTAL AMERICAS"]]};
+// Filas de horarios.csv por hora (00..23), medidas en la Fase 1.
+const POR_HORA = [71,0,0,0,1837,8978,14647,16154,15600,13454,10468,7844,5444,4182,3975,4347,5325,6165,6481,6281,4595,2347,1539,758];
+const W = 1000, H = (() => { const r = document.getElementById('stage').getBoundingClientRect(); return r.width > 0 ? Math.round(Math.max(560, Math.min(1100, 1000 * r.height / r.width))) : 700; })();
+document.getElementById('svg').setAttribute('viewBox', `0 0 ${W} ${H}`);
+const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmtN = n => n.toLocaleString('es-CO');
+const fmtT = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const PREF = { A:'#60a5fa', B:'#34d399', C:'#f472b6', D:'#a78bfa', E:'#fb923c', F:'#facc15', G:'#2dd4bf', H:'#f87171', J:'#c084fc', K:'#4ade80', L:'#38bdf8', M:'#fda4af', N:'#93c5fd' };
+const colorRuta = r => PREF[/^[A-Z]/.test(r) ? r[0] : 'N'] || '#93c5fd';
+
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------- Disposición de la red (d3-force sobre el grafo real) ---------- */
+const nodes = DATA.estaciones.map(s => ({ id: s.n, b: s.b, r: s.r }));
+const byId = new Map(nodes.map(n => [n.id, n]));
+const links = DATA.aristas.map(a => ({ source: a.a, target: a.b, rutas: a.rutas, pico: a.pico, pref: a.pref }));
+const sim = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links).id(d => d.id).distance(l => 16 + 10 / Math.sqrt(l.rutas)).strength(0.8))
+  .force('charge', d3.forceManyBody().strength(-95).distanceMax(320))
+  .force('collide', d3.forceCollide(d => 5 + Math.sqrt(d.r) * 1.3))
+  .force('x', d3.forceX().strength(0.04))
+  .force('y', d3.forceY().strength(0.06))
+  .stop();
+for (let i = 0; i < 700; i++) sim.tick();
+(function fit() {
+  const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const m = 40, k = Math.min((W - 2 * m) / (x1 - x0), (H - 2 * m) / (y1 - y0));
+  const ox = (W - k * (x1 - x0)) / 2, oy = (H - k * (y1 - y0)) / 2;
+  nodes.forEach(n => { n.x = ox + (n.x - x0) * k; n.y = oy + (n.y - y0) * k; });
+})();
+
+const ns = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs, parent) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; };
+const maxPico = Math.max(...links.map(l => l.pico));
+const gE = document.getElementById('g-edges');
+links.forEach(l => {
+  const a = l.pico / maxPico;
+  el('line', { x1: l.source.x, y1: l.source.y, x2: l.target.x, y2: l.target.y,
+    stroke: `rgba(140,180,240,${(0.16 + 0.5 * Math.sqrt(a)).toFixed(3)})`,
+    'stroke-width': (0.6 + Math.sqrt(l.rutas) * 0.55).toFixed(2), 'stroke-linecap': 'round' }, gE);
+});
+
+/* ---------- Viaje ---------- */
+const V = DATA.viaje;
+const tripStations = [];
+V.tramos.forEach((t, i) => t.paradas.forEach((p, j) => { if (i === 0 || j > 0) tripStations.push(p); }));
+const tripSet = new Set(tripStations);
+const xferName = V.tramos[0].baja;
+const pts = tripStations.map(s => byId.get(s));
+const gT = document.getElementById('g-trip');
+const dPath = 'M' + pts.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join('L');
+el('path', { d: dPath, fill: 'none', stroke: 'rgba(34,211,238,.25)', 'stroke-width': 10, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, gT);
+const tripLine = el('path', { d: dPath, fill: 'none', stroke: '#22d3ee', 'stroke-width': 3.2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', filter: 'url(#glow)', class: 'trip-line' }, gT);
+const L = tripLine.getTotalLength();
+if (!REDUCE) { tripLine.style.strokeDasharray = L; tripLine.style.strokeDashoffset = L; tripLine.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: 900, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' }); }
+
+/* ---------- Estaciones ---------- */
+const gN = document.getElementById('g-nodes'), gL = document.getElementById('g-labels');
+const tip = document.getElementById('tip'), stage = document.getElementById('stage');
+nodes.forEach(n => {
+  const big = n.r >= 20, onTrip = tripSet.has(n.id);
+  const rad = 2.2 + Math.sqrt(n.r) * 0.7;
+  const g = el('g', { tabindex: 0, role: 'button', 'aria-label': `${n.id}, ${n.b} buses al día, ${n.r} rutas`, style: 'cursor:pointer' }, gN);
+  if (big) el('circle', { cx: n.x, cy: n.y, r: rad + 2.6, fill: 'none', stroke: 'rgba(230,238,248,.35)', 'stroke-width': 0.8 }, g);
+  const isEnd = n.id === V.origen || n.id === V.destino, isX = n.id === xferName;
+  el('circle', { cx: n.x, cy: n.y, r: onTrip ? rad + 1.2 : rad,
+    fill: isEnd && n.id === V.destino ? '#e6eef8' : '#0b1322',
+    stroke: isX ? '#fbbf24' : onTrip ? '#22d3ee' : 'rgba(200,220,245,.75)', 'stroke-width': onTrip ? 2 : 1.1 }, g);
+  g.addEventListener('mouseenter', () => showTip(n));
+  g.addEventListener('mouseleave', () => tip.hidden = true);
+  g.addEventListener('focus', () => showTip(n));
+  g.addEventListener('blur', () => tip.hidden = true);
+  g.addEventListener('click', () => selectStation(n));
+  g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectStation(n); } });
+  if (big || onTrip) {
+    const t = el('text', { x: n.x + rad + 4, y: n.y + 3.2, 'font-family': 'Space Grotesk, sans-serif', 'font-size': onTrip ? 10.5 : 8.5, 'font-weight': onTrip ? 600 : 500,
+      fill: onTrip ? '#e6eef8' : 'rgba(200,215,235,.7)', 'paint-order': 'stroke', stroke: '#060a13', 'stroke-width': 3, 'stroke-linejoin': 'round' }, gL);
+    t.textContent = n.id;
+  }
+});
+let zt = d3.zoomIdentity;
+function showTip(n) {
+  const svg = document.getElementById('svg'), ctm = svg.getScreenCTM(), r = stage.getBoundingClientRect();
+  const p = new DOMPoint(zt.applyX(n.x), zt.applyY(n.y)).matrixTransform(ctm);
+  tip.innerHTML = `<b>${n.id}</b> &nbsp;<span>${fmtN(n.b)} buses/día · ${n.r} rutas</span>`;
+  tip.style.left = (p.x - r.left) + 'px'; tip.style.top = (p.y - r.top) + 'px'; tip.hidden = false;
+}
+
+/* ---------- Itinerario ---------- */
+const itin = document.getElementById('itin');
+function li(html, leg) { const e = document.createElement('li'); e.className = 'stop'; if (leg) e.style.setProperty('--leg', leg); e.innerHTML = html; itin.appendChild(e); }
+V.tramos.forEach((t, i) => {
+  const c = colorRuta(t.ruta);
+  const nodeCls = i === 0 ? 'node' : 'node xfer';
+  const inter = t.paradas.slice(1, -1);
+  const meta = i === 0
+    ? `<span>Sube a las</span> <span class="time">${t.hora_sube}</span> <span class="chip prog">Programado</span>`
+    : `<span>Transbordo · cambia a</span> <span class="route" style="--rc:${c}">${t.ruta}</span>`;
+  li(`<div class="rail"><span class="${nodeCls}"></span></div>
+      <div class="body"><div class="name">${t.sube}</div><div class="meta">${meta}</div>
+        <div class="leg"><div class="leg-head"><span class="route" style="--rc:${c}">${t.ruta}</span><span class="leg-stops">${t.n} ${t.n === 1 ? 'parada' : 'paradas'} hasta ${t.baja}</span></div>
+        ${inter.length ? `<div class="leg-stops">Pasa por<ol>${inter.map(p => `<li>${p}</li>`).join('')}</ol></div>` : ''}</div></div>`, c);
+});
+li(`<div class="rail"><span class="node end"></span></div><div class="body"><div class="name">${V.destino}</div><div class="meta">Destino · hora de llegada <span class="chip est">Estimado</span> en la app</div></div>`);
+
+/* ---------- Panel derecho ---------- */
+const rank = document.getElementById('rank'), top1 = DATA.ranking[0][0];
+DATA.ranking.forEach(([b, n]) => {
+  const e = document.createElement('li');
+  e.innerHTML = `<span>${n}</span><span class="n">${fmtN(b)}</span><span class="bar"><i style="width:${(100 * b / top1).toFixed(1)}%"></i></span>`;
+  rank.appendChild(e);
+});
+function renderNext(n) {
+  const ul = document.getElementById('st-next'); ul.innerHTML = '';
+  if (n.id === DATA.panel.nombre) {
+    DATA.panel.proximos.slice(0, 5).forEach(([h, r]) => {
+      const e = document.createElement('li');
+      e.innerHTML = `<span class="route" style="--rc:${colorRuta(r)}">${r}</span><span class="time">${h}</span>`;
+      ul.appendChild(e);
+    });
+  } else {
+    const e = document.createElement('li');
+    e.innerHTML = `<span style="color:var(--dim);font-size:12.5px">En la app, cada ruta de esta estación con su próximo bus.</span>`;
+    ul.appendChild(e);
+  }
+}
+function selectStation(n) {
+  document.getElementById('st-name').textContent = n.id;
+  document.getElementById('st-buses').textContent = fmtN(n.b);
+  document.getElementById('st-rutas').textContent = n.r;
+  renderNext(n);
+}
+selectStation(byId.get(DATA.panel.nombre));
+
+/* ---------- Zoom ---------- */
+const svg = d3.select('#svg'), world = document.getElementById('world');
+const zoom = d3.zoom().scaleExtent([0.7, 8]).on('zoom', e => { zt = e.transform; world.setAttribute('transform', zt); tip.hidden = true; });
+svg.call(zoom);
+document.getElementById('zin').onclick = () => svg.transition().duration(250).call(zoom.scaleBy, 1.5);
+document.getElementById('zout').onclick = () => svg.transition().duration(250).call(zoom.scaleBy, 1 / 1.5);
+document.getElementById('zfit').onclick = () => svg.transition().duration(350).call(zoom.transform, d3.zoomIdentity);
+
+/* ---------- Flota simulada (Canvas) ---------- */
+const cv = document.getElementById('fleet'), ctx = cv.getContext('2d');
+const rand = rng(2021);
+const buses = [];
+links.forEach(l => {
+  const n = Math.round(l.pico / 14);
+  for (let i = 0; i < n; i++) buses.push({ l, ph: rand(), sp: 0.035 + rand() * 0.03, dir: rand() < 0.5, on: rand() });
+});
+let hora = 460;
+function densidad() { const h = Math.floor(hora / 60); return POR_HORA[h] / POR_HORA[7]; }
+let view = { k: 1, ox: 0, oy: 0, dpr: 1 };
+function resize() {
+  const r = stage.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  const k = Math.min(r.width / W, r.height / H);
+  view = { k, ox: (r.width - k * W) / 2, oy: (r.height - k * H) / 2, dpr };
+}
+new ResizeObserver(resize).observe(stage); resize();
+function drawFleet(t) {
+  const { k, ox, oy, dpr } = view;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.setTransform(dpr * k * zt.k, 0, 0, dpr * k * zt.k, dpr * (ox + k * zt.x), dpr * (oy + k * zt.y));
+  const dens = densidad();
+  ctx.fillStyle = '#d7262e';
+  for (const b of buses) {
+    if (b.on > dens) continue;
+    const s = b.l.source, g = b.l.target;
+    let u = (b.ph + t * 0.001 * b.sp) % 1; if (b.dir) u = 1 - u;
+    const x = s.x + (g.x - s.x) * u, y = s.y + (g.y - s.y) * u;
+    const ang = Math.atan2(g.y - s.y, g.x - s.x);
+    ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+    ctx.globalAlpha = 0.85; ctx.fillRect(-2.6, -1, 5.2, 2); ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- Articulado que se dobla en las curvas ---------- */
+const segLens = []; let acc = 0;
+for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); segLens.push(d); acc += d; }
+const TOTAL = acc;
+const xferDist = (() => { let d = 0; for (let i = 1; i < pts.length; i++) { d += segLens[i - 1]; if (pts[i].id === xferName) return d; } return 0; })();
+function at(d) {
+  d = Math.max(0, Math.min(TOTAL, d));
+  for (let i = 0; i < segLens.length; i++) {
+    if (d <= segLens[i] || i === segLens.length - 1) { const u = segLens[i] ? d / segLens[i] : 0; const a = pts[i], b = pts[i + 1]; return { x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u }; }
+    d -= segLens[i];
+  }
+}
+const gB = document.getElementById('g-bus');
+const SEC = 8.5, GAP = 1.3, WID = 4.2;
+const secs = [0, 1, 2].map(i => {
+  const g = el('g', {}, gB);
+  el('rect', { x: -SEC / 2, y: -WID / 2, width: SEC, height: WID, rx: 1.4, fill: '#d7262e', stroke: '#8e161c', 'stroke-width': 0.5 }, g);
+  el('rect', { x: -SEC / 2 + 1.2, y: -0.55, width: SEC - 2.4, height: 1.1, rx: 0.5, fill: 'rgba(255,255,255,.28)' }, g);
+  if (i === 0) el('rect', { x: SEC / 2 - 1.3, y: -WID / 2 + 0.5, width: 0.9, height: WID - 1, rx: 0.4, fill: '#cfe9ff' }, g);
+  return g;
+});
+const joints = [0, 1].map(() => el('circle', { r: 1.25, fill: '#3a0b0e' }, gB));
+function placeBus(front) {
+  let d = front; const centers = [];
+  secs.forEach((g, i) => {
+    const f = at(d), b = at(d - SEC), cx = (f.x + b.x) / 2, cy = (f.y + b.y) / 2;
+    const ang = Math.atan2(f.y - b.y, f.x - b.x) * 180 / Math.PI;
+    g.setAttribute('transform', `translate(${cx.toFixed(2)},${cy.toFixed(2)}) rotate(${ang.toFixed(1)})`);
+    centers.push(b); d -= SEC + GAP;
+  });
+  joints.forEach((j, i) => { const p = at(front - (i + 1) * SEC - (i + 0.5) * GAP); j.setAttribute('cx', p.x); j.setAttribute('cy', p.y); });
+}
+const SPEED = 0.055, PAUSE = 900, START = 3 * SEC + 2 * GAP;
+let busD = START, pausedUntil = 0, xferDone = false, last = performance.now();
+placeBus(busD);
+
+/* ---------- Bucle ---------- */
+function frame(now) {
+  const dt = Math.min(50, now - last); last = now;
+  if (playing) { simMin += dt / 1000 * speeds[speedIdx] / 60; if (simMin >= 1) { const add = Math.floor(simMin); simMin -= add; setHora((hora + add) % 1440); } }
+  drawFleet(now);
+  if (!REDUCE && now > pausedUntil) {
+    busD += dt * SPEED;
+    if (!xferDone && busD >= xferDist) { busD = xferDist; xferDone = true; pausedUntil = now + PAUSE; }
+    if (busD >= TOTAL) { busD = TOTAL; placeBus(busD); busD = START; xferDone = false; pausedUntil = now + PAUSE * 1.6; }
+    placeBus(busD);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Línea de tiempo ---------- */
+const hist = document.getElementById('hist'), maxH = Math.max(...POR_HORA);
+POR_HORA.forEach(v => { const i = document.createElement('i'); i.style.height = Math.max(2, 100 * v / maxH) + '%'; hist.appendChild(i); });
+const range = document.getElementById('hora'), clock = document.getElementById('clock');
+function setHora(m) {
+  hora = m; range.value = m; clock.textContent = fmtT(m);
+  [...hist.children].forEach((b, i) => b.classList.toggle('on', i === Math.floor(m / 60)));
+}
+range.addEventListener('input', () => setHora(+range.value));
+setHora(460);
+let playing = false, simMin = 0, speedIdx = 0; const speeds = [60, 600];
+const playBtn = document.getElementById('play'), speedBtn = document.getElementById('speed');
+playBtn.onclick = () => { playing = !playing; playBtn.setAttribute('aria-pressed', playing); playBtn.textContent = playing ? '❚❚' : '▶'; };
+speedBtn.onclick = () => { speedIdx = 1 - speedIdx; speedBtn.textContent = '×' + speeds[speedIdx]; };
+requestAnimationFrame(frame);
+
+/* ---------- Autocompletar (demostración del componente) ---------- */
+const NAMES = DATA.estaciones.map(s => s.n);
+const sugg = document.getElementById('sugg');
+let active = null, sel = -1;
+function openSugg(input) {
+  const p = input.value.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const res = p ? NAMES.filter(n => n.startsWith(p)).slice(0, 6) : [];
+  active = input; sel = -1;
+  if (!res.length) { sugg.hidden = true; input.setAttribute('aria-expanded', 'false'); return; }
+  sugg.innerHTML = res.map((n, i) => `<li role="option" id="op${i}" aria-selected="false" data-v="${n}"><span><mark>${n.slice(0, p.length)}</mark>${n.slice(p.length)}</span><small>${byId.get(n).r} rutas</small></li>`).join('');
+  sugg.style.top = (input.parentElement.offsetTop + input.offsetHeight + 4) + 'px';
+  sugg.hidden = false; input.setAttribute('aria-expanded', 'true');
+}
+function pick(v) { if (active) active.value = v; sugg.hidden = true; active && active.setAttribute('aria-expanded', 'false'); toast('Maqueta: el itinerario es un ejemplo fijo. En la app, el motor recalcula el viaje (R5).'); }
+['f-origen', 'f-destino'].forEach(id => {
+  const inp = document.getElementById(id);
+  inp.addEventListener('input', () => openSugg(inp));
+  inp.addEventListener('keydown', e => {
+    const items = [...sugg.querySelectorAll('li')]; if (sugg.hidden || !items.length) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; items.forEach((li, i) => li.setAttribute('aria-selected', i === sel)); inp.setAttribute('aria-activedescendant', 'op' + sel); }
+    if (e.key === 'Enter' && sel >= 0) { e.preventDefault(); pick(items[sel].dataset.v); }
+    if (e.key === 'Escape') { sugg.hidden = true; }
+  });
+  inp.addEventListener('blur', () => setTimeout(() => { sugg.hidden = true; }, 150));
+});
+sugg.addEventListener('mousedown', e => { const li = e.target.closest('li'); if (li) { e.preventDefault(); pick(li.dataset.v); } });
+document.getElementById('swap').onclick = () => toast('Maqueta: intercambiar origen y destino recalcula el viaje en la app.');
+
+/* ---------- Otros ---------- */
+let toastT;
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3200); }
+document.querySelectorAll('[data-mock]').forEach(b => b.addEventListener('click', () => toast(`La vista «${b.textContent}» se diseña en la siguiente fase. Esta maqueta muestra solo «Viaje».`)));
+</script>

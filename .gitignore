@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Material del curso que no se publica
+*.pptx
+
+# Redes generadas por los benchmarks (se regeneran con un comando)
+benchmarks/redes/
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Configuración local de Claude Code
+.claude/settings.local.json
