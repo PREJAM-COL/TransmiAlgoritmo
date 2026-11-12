@@ -66,3 +66,5 @@ class ColaCircular:
             nuevo[i] = viejo[(self._cabeza + i) & (cap - 1)]
         self._datos = nuevo
         self._cabeza = 0
+
+
