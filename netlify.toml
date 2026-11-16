@@ -1,0 +1,22 @@
+# Publicación en Netlify: sitio estático, sin servidor. El motor corre en el
+# navegador con Pyodide, así que se publica la raíz del repositorio (la app
+# lee motor/, api/, benchmarks/ y datos/ con fetch). Dueño: Miguel.
+
+[build]
+  publish = "."
+  command = ""
+
+[[redirects]]
+  from = "/"
+  to = "/web/"
+  status = 302
+
+[[headers]]
+  for = "/*.py"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/datos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

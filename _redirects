@@ -1,0 +1,2 @@
+# Netlify: la app vive en /web/ (igual que en netlify.toml, por si se publica arrastrando la carpeta)
+/    /web/    302
