@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TransmiAlgoritmo · Planeador TransMilenio</title>
+  <meta name="description" content="Planeador de viajes sobre la red real de TransMilenio, con un motor de estructuras de datos propias en Python.">
+  <meta name="theme-color" content="#060a13">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='11' width='8' height='10' rx='2' fill='%23d7262e'/%3E%3Crect x='12' y='11' width='8' height='10' rx='2' fill='%23d7262e'/%3E%3Crect x='22' y='11' width='8' height='10' rx='2' fill='%23d7262e'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-vista="viaje">
+  <a class="saltar" href="#panel-izq">Saltar al planeador</a>
+  <!-- Bienvenida: es también la pantalla de carga del motor -->
+  <div id="intro" role="dialog" aria-label="Cargando el planeador">
+    <div class="intro-cielo" aria-hidden="true"></div>
+    <div class="intro-via" aria-hidden="true"><span class="intro-traza"></span></div>
+    <div class="intro-bus" aria-hidden="true">
+      <span class="vagon"><em>BIEN</em></span><span class="fuelle"></span><span class="vagon"><em>VENI</em></span><span class="fuelle"></span><span class="vagon frente"><em>DO</em></span>
+    </div>
+    <div class="intro-texto">
+      <h1>Transmi<b>Algoritmo</b></h1>
+      <p>Planeador de viajes sobre la red real de TransMilenio</p>
+      <p class="intro-etapa" aria-live="polite">Preparando</p>
+      <div class="intro-barra"><i></i></div>
+    </div>
+    <button class="intro-saltar" type="button">Saltar</button>
+  </div>
+
+  <div class="app">
+    <header class="barra">
+      <button class="marca" type="button" aria-label="TransmiAlgoritmo"><span class="logo" aria-hidden="true"><i></i><i></i><i></i></span><span>Transmi<b>Algoritmo</b></span></button>
+      <nav class="pestanas" aria-label="Vistas">
+        <button class="pestana" data-vista="viaje" aria-current="page">Viaje</button>
+        <button class="pestana" data-vista="red">Red</button>
+        <button class="pestana" data-vista="operacion">Operación</button>
+        <button class="pestana" data-vista="horapico">Hora pico</button>
+        <button class="pestana" data-vista="rendimiento">Rendimiento</button>
+      </nav>
+      <div class="barra-der">
+        <span class="motor-ms" title="Tiempo de la última respuesta del motor (dentro de Python)">motor <b id="ms-motor">—</b></span>
+        <button class="boton-sustentar" id="sustentar" type="button" title="Recorrido guiado por los requisitos, con demostraciones en vivo">▶ Sustentar</button>
+        <button class="interruptor-serio" id="modo-serio" type="button" aria-pressed="false" title="Apaga los avisos con personalidad">Modo serio</button>
+      </div>
+    </header>
+
+    <main class="principal">
+      <section class="panel izq" id="panel-izq" aria-label="Controles de la vista" tabindex="-1"></section>
+
+      <section class="escenario" aria-label="Red esquemática">
+        <div id="escenario" class="mapa"></div>
+        <div class="capa arriba-izq"><div class="vidrio" id="cifras">Cargando la red…</div></div>
+        <div class="capa abajo-izq"><div class="vidrio">
+          <span class="clave"><i class="k-viaje"></i>Trayecto</span>
+          <span class="clave"><i class="k-red"></i>Brillo: buses en esa hora</span>
+          <span class="clave"><i class="k-bus"></i><b id="flota-n">0</b> buses</span><span class="chip sim">Simulado</span>
+        </div></div>
+        <div class="capa abajo-der">
+          <button class="zoom" id="ver-lista" aria-pressed="false" aria-controls="lista-red" title="Ver como lista">☰</button>
+          <button class="zoom plano-btn" id="plano" aria-pressed="false" aria-label="Cambiar a plano de metro" title="Plano de metro">⌗</button>
+          <button class="zoom" id="zoom-mas" aria-label="Acercar">+</button>
+          <button class="zoom" id="zoom-menos" aria-label="Alejar">−</button>
+          <button class="zoom" id="zoom-ajustar" aria-label="Ajustar la red a la pantalla">⤢</button>
+        </div>
+        <div id="centro-alterno" class="centro-alterno" hidden></div>
+        <section id="lista-red" class="lista-red" aria-label="Estaciones en lista" hidden>
+          <div class="lista-cab">
+            <label for="lista-filtro" class="oculto">Filtrar estaciones</label>
+            <input id="lista-filtro" placeholder="Filtrar estaciones" spellcheck="false" autocomplete="off">
+            <button class="mini" id="lista-cerrar" type="button">Volver al mapa</button>
+          </div>
+          <table class="tabla-red">
+            <caption class="oculto">Estaciones de la red, con su estado, buses al día y rutas</caption>
+            <thead><tr><th scope="col">Estación</th><th scope="col">Estado</th><th scope="col">Buses/día</th><th scope="col">Rutas</th></tr></thead>
+            <tbody id="lista-cuerpo"></tbody>
+          </table>
+        </section>
+        <div id="puertas" class="puertas" aria-hidden="true"><i></i><i></i></div>
+      </section>
+
+      <aside class="panel der" aria-label="Estación seleccionada y ranking">
+        <div class="panel-in">
+          <div id="estacion"></div>
+          <div class="seccion">
+            <span class="eyebrow">Más buses al día <span class="req">R6</span></span>
+            <ol class="ranking" id="ranking"></ol>
+          </div>
+          <p class="pista" id="info-carga"></p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="panel linea-tiempo" aria-label="Hora de consulta">
+      <div class="reloj"><b id="reloj">07:40</b><span>hora de consulta</span></div>
+      <div class="controles">
+        <button class="control" id="reproducir" aria-pressed="false" aria-label="Reproducir el paso del tiempo">▶</button>
+        <button class="control" id="velocidad" aria-label="Cambiar velocidad">×60</button>
+        <button class="control" id="ahora">Ahora</button>
+      </div>
+      <div class="pista-tiempo">
+        <div class="histograma" id="histograma" aria-hidden="true"></div>
+        <input type="range" id="hora" min="0" max="1439" step="1" value="460" aria-label="Hora del día">
+        <div class="marcas"><span>00</span><span>06</span><span>12</span><span>18</span><span>23:59</span></div>
+      </div>
+    </footer>
+  </div>
+
+  <datalist id="lista-rutas"></datalist>
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -10,6 +10,10 @@ venv/
 # Redes generadas por los benchmarks (se regeneran con un comando)
 benchmarks/redes/
 
+# Paquetes de entrega por rondas (se copian a mano, no se suben)
+rondas/
+*.zip
+
 # Sistema operativo y editores
 .DS_Store
 Thumbs.db
@@ -18,4 +22,4 @@ desktop.ini
 .idea/
 
 # Configuración local de Claude Code
-.claude/settings.local.json
+.claude/
