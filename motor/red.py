@@ -13,7 +13,7 @@ Los métodos que empiezan con "info_" o "lista_" no son del contrato: son de
 solo lectura para la interfaz y también respetan las reglas del motor.
 """
 
-from . import carga, cierres, comandos, consultas, edicion, horarios, ranking
+from . import carga, cierres, consultas, horarios, ranking
 from .estructuras.ordenamiento import merge_sort
 
 
@@ -58,43 +58,39 @@ class Red:
 
     def agregar_parada(self, ruta, nueva, despues_de):
         """R7. Inserta nueva después de despues_de en la ruta. True si se pudo."""
-        p = edicion.preparar_agregar(self, ruta, nueva, despues_de)
-        if p is None:
-            return False
-        return comandos.ejecutar(self, comandos.ComandoAgregar(p[0], p[1]))
+        return False
 
     def quitar_parada(self, ruta, estacion):
         """R7. Quita la estación de la ruta. True si se pudo."""
-        p = edicion.preparar_quitar(self, ruta, estacion)
-        if p is None:
-            return False
-        return comandos.ejecutar(self, comandos.ComandoQuitar(p[0], p[1]))
+        return False
 
     def recorrido(self, ruta, al_reves=False):
         """R7. Lista de estaciones de la ruta, en su sentido o al revés."""
-        return edicion.recorrido(self, ruta, al_reves)
+        return []
 
     def cerrar(self, nombre):
         """R8. Cierra una estación abierta. True si cambió algo."""
         e = self._estaciones.obtener(nombre) if isinstance(nombre, str) else None
         if e is None or not e.abierta:
             return False
-        return comandos.ejecutar(self, comandos.ComandoCerrar(e))
+        cierres.aplicar_cierre(self, e)
+        return True
 
     def reabrir(self, nombre):
         """R8. Reabre una estación cerrada. True si cambió algo."""
         e = self._estaciones.obtener(nombre) if isinstance(nombre, str) else None
         if e is None or e.abierta:
             return False
-        return comandos.ejecutar(self, comandos.ComandoReabrir(e))
+        cierres.aplicar_reapertura(self, e)
+        return True
 
     def deshacer(self):
         """R9. Deshace el último cambio. True si había algo para deshacer."""
-        return comandos.deshacer(self)
+        return False
 
     def rehacer(self):
         """R9. Rehace el último cambio deshecho. True si había algo para rehacer."""
-        return comandos.rehacer(self)
+        return False
 
     # ------------------------------------------------------------ Solo lectura (interfaz)
 
@@ -123,9 +119,8 @@ class Red:
         return [] if nodo is None else [m for m in nodo.horas]
 
     def info_historial(self):
-        """(descripciones para deshacer, descripciones para rehacer), del fondo a la cima."""
-        return ([c.descripcion() for c in self._deshacer.elementos()],
-                [c.descripcion() for c in self._rehacer.elementos()])
+        """(descripciones para deshacer, descripciones para rehacer). Llega con R9."""
+        return ([], [])
 
     def info_traza_viaje(self, origen, destino):
         """(resultado de R5, pasos de la búsqueda). Llega con R5."""
