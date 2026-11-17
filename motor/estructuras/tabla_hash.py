@@ -18,8 +18,10 @@ Cómo funciona
 5. Cuando (ocupadas + lápidas) supera el 70 % de la capacidad, se reconstruye
    la tabla (más grande si hace falta) y desaparecen las lápidas.
 
-Tres arreglos paralelos (claves, valores, estado) en vez de una lista de
-tuplas: menos objetos en memoria.
+Cuatro arreglos paralelos (claves, valores, estado y el hash de cada clave)
+en vez de una lista de tuplas: menos objetos en memoria. Guardar el hash
+evita recalcularlo al redimensionar y permite descartar casi todas las
+casillas del sondeo comparando enteros antes que textos.
 
 Complejidad (n = elementos):
     obtener, contiene, quitar: O(1) esperado; O(n) en el peor caso (todas
@@ -38,11 +40,21 @@ _CARGA_MAX_NUM = 7      # se reconstruye si (ocupadas + lápidas) / capacidad > 
 _CARGA_MAX_DEN = 10
 
 
+_PRIMO = (1 << 61) - 1   # primo de Mersenne
+
+
 def hash_cadena(texto):
-    """Hash polinomial de 32 bits con mezcla final (fmix32 de MurmurHash3)."""
-    h = 0
-    for c in texto:
-        h = (h * 31 + ord(c)) & _MASCARA32
+    """Hash polinomial con mezcla final (fmix32 de MurmurHash3).
+
+    Polinomio en base 256 sobre los bytes UTF-8 del texto, módulo el primo
+    2^61 - 1:  h = (b0·256^(m-1) + b1·256^(m-2) + ... + b(m-1)) mod p.
+    Leer los bytes como un solo entero (int.from_bytes) evalúa exactamente ese
+    polinomio, pero en C: con 80.000 estaciones y un millón de paradas, la
+    versión con un ciclo carácter por carácter era más de la mitad del tiempo
+    de carga. Sigue siendo O(m), m = largo del texto.
+    """
+    h = int.from_bytes(texto.encode("utf-8"), "big") % _PRIMO
+    h = (h ^ (h >> 32)) & _MASCARA32
     h ^= h >> 16
     h = (h * 0x85EBCA6B) & _MASCARA32
     h ^= h >> 13
@@ -70,7 +82,7 @@ def _hash(clave):
 
 
 class TablaHash:
-    __slots__ = ("_claves", "_valores", "_estado", "_ocupadas", "_lapidas")
+    __slots__ = ("_claves", "_valores", "_estado", "_hashes", "_ocupadas", "_lapidas")
 
     def __init__(self, capacidad=8):
         cap = 8
@@ -82,6 +94,7 @@ class TablaHash:
         self._claves = [None] * cap
         self._valores = [None] * cap
         self._estado = [_VACIA] * cap
+        self._hashes = [0] * cap
         self._ocupadas = 0
         self._lapidas = 0
 
@@ -97,11 +110,12 @@ class TablaHash:
     def _posicion(self, clave):
         """Índice de la casilla que guarda `clave`, o -1 si no está."""
         mascara = len(self._estado) - 1
-        i = _hash(clave) & mascara
-        estado, claves = self._estado, self._claves
+        h = _hash(clave)
+        i = h & mascara
+        estado, claves, hashes = self._estado, self._claves, self._hashes
         # Termina porque la carga nunca llega a 100 %: siempre hay una casilla vacía.
         while estado[i] != _VACIA:
-            if estado[i] == _OCUPADA and claves[i] == clave:
+            if estado[i] == _OCUPADA and hashes[i] == h and claves[i] == clave:
                 return i
             i = (i + 1) & mascara
         return -1
@@ -117,14 +131,27 @@ class TablaHash:
 
     def poner(self, clave, valor):
         """Inserta o reemplaza. Devuelve True si la clave era nueva."""
+        return self._poner(clave, _hash(clave), valor, True)
+
+    def agregar(self, clave, valor):
+        """Inserta solo si la clave NO está. Devuelve True si la insertó.
+
+        Equivale a `if not contiene(clave): poner(clave, valor)`, pero calcula
+        el hash y recorre el sondeo una sola vez (la carga lo usa un millón de
+        veces con la red de 80.000 estaciones).
+        """
+        return self._poner(clave, _hash(clave), valor, False)
+
+    def _poner(self, clave, h, valor, reemplazar):
         mascara = len(self._estado) - 1
-        i = _hash(clave) & mascara
-        estado, claves = self._estado, self._claves
+        i = h & mascara
+        estado, claves, hashes = self._estado, self._claves, self._hashes
         primera_lapida = -1
         while estado[i] != _VACIA:
             if estado[i] == _OCUPADA:
-                if claves[i] == clave:
-                    self._valores[i] = valor
+                if hashes[i] == h and claves[i] == clave:
+                    if reemplazar:
+                        self._valores[i] = valor
                     return False
             elif primera_lapida < 0:
                 primera_lapida = i
@@ -137,6 +164,7 @@ class TablaHash:
         claves[i] = clave
         self._valores[i] = valor
         estado[i] = _OCUPADA
+        hashes[i] = h
         self._ocupadas += 1
 
         if (self._ocupadas + self._lapidas) * _CARGA_MAX_DEN > len(estado) * _CARGA_MAX_NUM:
@@ -160,11 +188,11 @@ class TablaHash:
         cap = 8
         while self._ocupadas * 2 > cap:
             cap *= 2
-        claves, valores, estado = self._claves, self._valores, self._estado
+        claves, valores, estado, hashes = self._claves, self._valores, self._estado, self._hashes
         self._reiniciar(cap)
         for i in range(len(estado)):
             if estado[i] == _OCUPADA:
-                self.poner(claves[i], valores[i])
+                self._poner(claves[i], hashes[i], valores[i], True)     # sin recalcular el hash
 
     # ------------------------------------------------------------ recorridos
 

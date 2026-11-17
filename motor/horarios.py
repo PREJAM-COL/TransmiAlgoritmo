@@ -1,4 +1,6 @@
-"""Las horas se guardan como minutos desde la medianoche (0..1439): comparar y
+"""R4 · Próximo bus, y utilidades de horas (dueño: Tomás).
+
+Las horas se guardan como minutos desde la medianoche (0..1439): comparar y
 ordenar enteros es más barato que comparar textos "HH:MM".
 
 Decisión sobre horas >= 24 (el GTFS trae cosas como "25:10" para viajes que
@@ -37,8 +39,7 @@ def formato(m):
 def proximo_bus(red, estacion, ruta, hora):
     """Primer bus de `ruta` en `estacion` a la hora `hora` o después.
 
-    Si ya no hay más ese día, devuelve el primero del día siguiente (vuelta).
-    None si la estación no existe, está cerrada, la ruta no para ahí, no tiene
+    None si ya no hay más buses ese día, si la estación no existe, está cerrada, la ruta no para ahí, no tiene
     horarios o la hora no es válida.
 
     Complejidad: O(1) esperado para encontrar el nodo (tabla hash) +
@@ -55,5 +56,5 @@ def proximo_bus(red, estacion, ruta, hora):
         return None
     i = limite_inferior(nodo.horas, m)
     if i == len(nodo.horas):
-        i = 0
+        return None          # ya pasó el último bus del día
     return formato(nodo.horas[i])

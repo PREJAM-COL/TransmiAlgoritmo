@@ -1,4 +1,6 @@
-"""El motor solo lee estaciones.csv, rutas.csv y horarios.csv. No se asume que
+"""Carga de la red desde los tres CSV (dueño: Tomás).
+
+El motor solo lee estaciones.csv, rutas.csv y horarios.csv. No se asume que
 vengan ordenados ni agrupados: la red del profesor es otra y más grande.
 Las filas inválidas (estación o ruta desconocida, orden u hora mal escritos,
 estación repetida en una ruta) se ignoran y se cuentan en red._advertencias.
@@ -86,11 +88,10 @@ def cargar(red, carpeta):
     # 1. Estaciones ---------------------------------------------------------
     nombres = []
     for (nombre,) in _filas(carpeta, "estaciones.csv", ["nombre"]):
-        if nombre == "" or red._estaciones.contiene(nombre):
+        e = Estacion(len(red._por_id), nombre)
+        if nombre == "" or not red._estaciones.agregar(nombre, e):   # vacía o repetida
             red._advertencias += 1
             continue
-        e = Estacion(len(red._por_id), nombre)
-        red._estaciones.poner(nombre, e)
         red._por_id.append(e)
         nombres.append(nombre)
     nombres = merge_sort(nombres)
@@ -98,9 +99,10 @@ def cargar(red, carpeta):
     red._abiertas.construir_desde_ordenados(nombres, [red._estaciones.obtener(n) for n in nombres])
 
     # 2. Rutas --------------------------------------------------------------
-    grupos = TablaHash()             # ruta -> lista de (orden, estacion)
+    grupos = TablaHash()             # ruta -> lista de (orden, Estacion)
     for ruta, orden, estacion in _filas(carpeta, "rutas.csv", ["ruta", "orden", "estacion"]):
-        if ruta == "" or not orden.lstrip("-").isdigit() or not red._estaciones.contiene(estacion):
+        e = red._estaciones.obtener(estacion)
+        if ruta == "" or not orden.lstrip("-").isdigit() or e is None:
             red._advertencias += 1
             continue
         lista = grupos.obtener(ruta)
@@ -108,22 +110,19 @@ def cargar(red, carpeta):
             lista = []
             grupos.poner(ruta, lista)
             red._nombres_rutas.append(ruta)
-        lista.append((int(orden), estacion))
+        lista.append((int(orden), e))
 
     for nombre_ruta in red._nombres_rutas:
         r = Ruta(nombre_ruta)
         red._rutas.poner(nombre_ruta, r)
-        for _, nombre_est in merge_sort(grupos.obtener(nombre_ruta), clave=_primero):
-            clave = clave_parada(nombre_ruta, nombre_est)
-            if red._paradas.contiene(clave):     # estación repetida en la misma ruta
-                red._advertencias += 1
-                continue
-            e = red._estaciones.obtener(nombre_est)
+        for _, e in merge_sort(grupos.obtener(nombre_ruta), clave=_primero):
             nodo = NodoParada(e, r)
+            if not red._paradas.agregar(clave_parada(nombre_ruta, e.nombre), nodo):
+                red._advertencias += 1           # estación repetida en la misma ruta
+                continue
             nodo.membresia = Membresia(nodo)
             r.paradas.insertar_al_final(nodo)
             e.membresias.insertar_al_final(nodo.membresia)
-            red._paradas.poner(clave, nodo)
     red._nombres_rutas = merge_sort(red._nombres_rutas)
 
     # 3. Horarios: ordenamiento por conteo -----------------------------------

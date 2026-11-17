@@ -1,40 +1,40 @@
 {
  "fuente": "CPython 3.14.7 · Windows",
- "fecha": "2026-11-13 10:05",
+ "fecha": "2026-11-16 23:16",
  "factores": [
-  1,
-  2,
-  4,
-  8
+  68,
+  136,
+  272,
+  544
  ],
  "tamanos": [
   {
-   "estaciones": 147,
-   "rutas": 181,
-   "paradas": 1927,
-   "horarios": 140492,
-   "pasajeros_R10": 20000
+   "estaciones": 9996,
+   "rutas": 12375,
+   "paradas": 131170,
+   "horarios": 239286,
+   "pasajeros_R10": 19992
   },
   {
-   "estaciones": 294,
-   "rutas": 363,
-   "paradas": 3856,
-   "horarios": 280990,
-   "pasajeros_R10": 40000
+   "estaciones": 19992,
+   "rutas": 24751,
+   "paradas": 262342,
+   "horarios": 478578,
+   "pasajeros_R10": 39984
   },
   {
-   "estaciones": 588,
-   "rutas": 727,
-   "paradas": 7714,
-   "horarios": 561986,
-   "pasajeros_R10": 80000
+   "estaciones": 39984,
+   "rutas": 49503,
+   "paradas": 524686,
+   "horarios": 957162,
+   "pasajeros_R10": 79968
   },
   {
-   "estaciones": 1176,
-   "rutas": 1455,
-   "paradas": 15430,
-   "horarios": 1123978,
-   "pasajeros_R10": 160000
+   "estaciones": 79968,
+   "rutas": 99007,
+   "paradas": 1049374,
+   "horarios": 1914330,
+   "pasajeros_R10": 159936
   }
  ],
  "operaciones": [
@@ -45,12 +45,12 @@
    "esperado": "O(n)",
    "n_es": "filas de los tres CSV (domina n_H, el conteo es lineal)",
    "tiempos_us": [
-    468059.1,
-    994736.3,
-    2050009.4,
-    4119944.1
+    3372203.4,
+    8124376.6,
+    16991130.8,
+    43629526.9
    ],
-   "razon_media": 2.06,
+   "razon_media": 2.35,
    "banda": [
     1.6,
     2.6
@@ -64,10 +64,10 @@
    "esperado": "O(1)",
    "n_es": "estaciones",
    "tiempos_us": [
-    1.414,
-    1.466,
-    1.479,
-    1.585
+    2.192,
+    2.851,
+    3.302,
+    2.487
    ],
    "razon_media": 1.04,
    "banda": [
@@ -83,12 +83,12 @@
    "esperado": "O(log n + k)",
    "n_es": "estaciones abiertas",
    "tiempos_us": [
-    0.961,
-    1.13,
-    1.247,
-    1.553
+    3.169,
+    3.549,
+    3.307,
+    3.33
    ],
-   "razon_media": 1.17,
+   "razon_media": 1.02,
    "banda": [
     0.7,
     1.5
@@ -102,12 +102,12 @@
    "esperado": "O(log n + m)",
    "n_es": "estaciones abiertas",
    "tiempos_us": [
-    2.239,
-    2.059,
-    2.231,
-    2.214
+    5.465,
+    7.136,
+    7.575,
+    9.639
    ],
-   "razon_media": 1.0,
+   "razon_media": 1.21,
    "banda": [
     0.7,
     1.5
@@ -121,12 +121,12 @@
    "esperado": "O(log h)",
    "n_es": "h = horas del par; no depende del tamaño de la red",
    "tiempos_us": [
-    5.058,
-    4.757,
-    5.35,
-    5.232
+    6.372,
+    8.355,
+    8.155,
+    7.651
    ],
-   "razon_media": 1.01,
+   "razon_media": 1.06,
    "banda": [
     0.7,
     1.4
@@ -140,10 +140,10 @@
    "esperado": "O(log n + k)",
    "n_es": "estaciones abiertas",
    "tiempos_us": [
-    1.371,
-    1.39,
-    1.468,
-    1.464
+    3.371,
+    3.574,
+    4.944,
+    3.607
    ],
    "razon_media": 1.02,
    "banda": [
@@ -159,12 +159,12 @@
    "esperado": "O(log n)",
    "n_es": "estaciones (el ranking se reubica); el enlace es O(1)",
    "tiempos_us": [
-    16.065,
-    15.275,
-    16.862,
-    18.643
+    25.922,
+    33.047,
+    27.859,
+    45.74
    ],
-   "razon_media": 1.05,
+   "razon_media": 1.21,
    "banda": [
     0.7,
     1.5
@@ -178,12 +178,12 @@
    "esperado": "O(L)",
    "n_es": "L = paradas de la ruta; no depende del tamaño de la red",
    "tiempos_us": [
-    1.432,
-    1.601,
-    1.604,
-    1.743
+    4.437,
+    6.231,
+    5.828,
+    6.29
    ],
-   "razon_media": 1.07,
+   "razon_media": 1.12,
    "banda": [
     0.7,
     1.4
@@ -197,12 +197,12 @@
    "esperado": "O(log n)",
    "n_es": "estaciones",
    "tiempos_us": [
-    10.608,
-    11.566,
-    13.307,
-    14.543
+    38.164,
+    49.051,
+    48.174,
+    48.503
    ],
-   "razon_media": 1.11,
+   "razon_media": 1.08,
    "banda": [
     0.7,
     1.5
@@ -216,12 +216,12 @@
    "esperado": "O(log n)",
    "n_es": "estaciones",
    "tiempos_us": [
-    8.077,
-    8.744,
-    10.659,
-    11.185
+    28.582,
+    28.701,
+    36.383,
+    37.841
    ],
-   "razon_media": 1.11,
+   "razon_media": 1.1,
    "banda": [
     0.7,
     1.5
@@ -231,19 +231,19 @@
   {
    "id": "fila",
    "requisito": "R10",
-   "nombre": "simular_fila con P = 20.000 × factor",
-   "esperado": "O(P)",
-   "n_es": "P = pasajeros",
+   "nombre": "simular_fila con P = 2 × estaciones, llegadas desordenadas",
+   "esperado": "O(P log P)",
+   "n_es": "P = pasajeros (ordenar las llegadas domina)",
    "tiempos_us": [
-    6117.5,
-    12336.4,
-    24946.2,
-    50041.9
+    103551.5,
+    226833.3,
+    571072.6,
+    1650888.8
    ],
-   "razon_media": 2.01,
+   "razon_media": 2.52,
    "banda": [
-    1.6,
-    2.6
+    1.7,
+    2.8
    ],
    "veredicto": "ok"
   },
@@ -254,12 +254,12 @@
    "esperado": "No se evalúa",
    "n_es": "suma de longitudes de las rutas del origen y destino",
    "tiempos_us": [
-    25.008,
-    22.913,
-    24.538,
-    25.594
+    61.086,
+    75.796,
+    87.075,
+    115.272
    ],
-   "razon_media": 1.01,
+   "razon_media": 1.24,
    "banda": null,
    "veredicto": "no se evalúa"
   }
@@ -270,16 +270,16 @@
    "elegida": "Tabla hash",
    "alternativa": "Búsqueda lineal en la lista",
    "elegida_us": [
-    1.378,
-    1.488,
-    1.52,
-    1.635
+    2.24,
+    2.329,
+    3.372,
+    4.028
    ],
    "alternativa_us": [
-    0.422,
-    0.786,
-    1.487,
-    3.032
+    63.72,
+    142.272,
+    364.336,
+    845.04
    ]
   },
   {
@@ -287,16 +287,16 @@
    "elegida": "AVL solo de abiertas",
    "alternativa": "Arreglo ordenado saltando cerradas (50 % cerradas)",
    "elegida_us": [
-    0.968,
-    1.115,
-    1.326,
-    1.364
+    3.288,
+    3.39,
+    3.128,
+    4.08
    ],
    "alternativa_us": [
-    0.638,
-    0.8,
-    1.044,
-    1.242
+    2.672,
+    2.918,
+    2.889,
+    3.133
    ]
   },
   {
@@ -304,16 +304,16 @@
    "elegida": "Búsqueda binaria propia",
    "alternativa": "Recorrido lineal de las horas",
    "elegida_us": [
-    0.34,
-    0.333,
-    0.331,
-    0.333
+    0.232,
+    0.251,
+    0.247,
+    0.247
    ],
    "alternativa_us": [
-    0.663,
-    0.666,
-    0.66,
-    0.664
+    0.237,
+    0.244,
+    0.237,
+    0.24
    ]
   },
   {
@@ -321,33 +321,33 @@
    "elegida": "AVL de ranking",
    "alternativa": "Recalcular y ordenar en cada consulta",
    "elegida_us": [
-    1.345,
-    1.396,
-    1.466,
-    1.465
+    3.475,
+    3.434,
+    4.385,
+    5.421
    ],
    "alternativa_us": [
-    116.024,
-    271.906,
-    636.332,
-    1461.196
+    39162.64,
+    88468.58,
+    227852.48,
+    659594.64
    ]
   },
   {
    "requisito": "R7",
-   "elegida": "Lista doble: insertar y quitar en medio (L = 2.000 × factor)",
+   "elegida": "Lista doble: insertar y quitar en medio (L = n)",
    "alternativa": "Arreglo: list.insert y list.pop en medio",
    "elegida_us": [
-    0.22,
-    0.224,
-    0.222,
-    0.224
+    0.477,
+    0.454,
+    0.667,
+    0.51
    ],
    "alternativa_us": [
-    0.42,
-    0.718,
-    1.319,
-    2.757
+    3.226,
+    6.647,
+    13.499,
+    28.573
    ]
   },
   {
@@ -355,16 +355,16 @@
    "elegida": "Cola circular (hora pico saturada)",
    "alternativa": "list.pop(0) (hora pico saturada)",
    "elegida_us": [
-    9051.6,
-    17148.0,
-    32534.1,
-    66248.1
+    19719.7,
+    42020.4,
+    108876.1,
+    172325.0
    ],
    "alternativa_us": [
-    14551.4,
-    56577.1,
-    216591.7,
-    883366.0
+    22034.6,
+    82520.0,
+    315115.0,
+    1228977.9
    ]
   }
  ]

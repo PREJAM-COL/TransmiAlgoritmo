@@ -9,18 +9,18 @@ class TestR1Estado(unittest.TestCase):
         self.red = Red(MINI)
 
     def test_existe_y_abierta(self):
-        self.assertEqual(self.red.estado("ALFA"), "abierta")
+        self.assertEqual(self.red.estado("ALFA"), "ABIERTA")
 
     def test_no_existe(self):
-        self.assertEqual(self.red.estado("ZETA"), "no existe")
-        self.assertEqual(self.red.estado(""), "no existe")
-        self.assertEqual(self.red.estado("alfa"), "no existe")      # nombre exacto
-        self.assertEqual(self.red.estado(None), "no existe")
+        self.assertEqual(self.red.estado("ZETA"), "NO EXISTE")
+        self.assertEqual(self.red.estado(""), "NO EXISTE")
+        self.assertEqual(self.red.estado("alfa"), "NO EXISTE")      # nombre exacto
+        self.assertEqual(self.red.estado(None), "NO EXISTE")
 
     @requiere("cierres")
     def test_cerrada(self):
         self.red.cerrar("ALFA")
-        self.assertEqual(self.red.estado("ALFA"), "cerrada")
+        self.assertEqual(self.red.estado("ALFA"), "CERRADA")
 
 
 class TestR2Autocompletar(unittest.TestCase):

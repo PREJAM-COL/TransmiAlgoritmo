@@ -1,4 +1,7 @@
-"""Mide cada operación del motor con redes ×1, ×2, ×4, ×8 (R11). Dueño: Tomás.
+"""Mide cada operación del motor con redes de 10.000 a 80.000 estaciones (R11). Dueño: Tomás.
+
+Son los mismos tamaños con que mide el profesor: 10.000, 20.000, 40.000 y
+80.000 estaciones (68, 136, 272 y 544 copias de la red real; ver generar_red.py).
 
 Método (el mismo del Taller 1): duplicar n y mirar cuánto crece el tiempo.
     O(1) o O(log n)  -> la razón t(2n)/t(n) se queda cerca de 1
@@ -15,8 +18,8 @@ También se comparan las estructuras elegidas contra la alternativa descartada
 (las alternativas viven aquí, fuera de motor/, porque usan lo prohibido).
 
 Uso:
-    py benchmarks/medir.py                 (×1, ×2, ×4, ×8)
-    py benchmarks/medir.py 1 2 4 8 16      (factores a elección)
+    py benchmarks/medir.py                 (10.000, 20.000, 40.000 y 80.000 estaciones; tarda unos minutos)
+    py benchmarks/medir.py 1 2 4 8         (copias de la red real, a elección)
 Escribe benchmarks/resultados/cpython.json, que lee el panel de rendimiento.
 """
 
@@ -31,7 +34,7 @@ import time
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, RAIZ)
 
-from benchmarks.generar_red import generar  # noqa: E402
+from benchmarks.generar_red import FACTORES_PROFESOR, generar  # noqa: E402
 from motor import Red, simular_fila  # noqa: E402
 from motor.estructuras.lista_doble import ListaDoble, NodoLista  # noqa: E402
 from motor.estructuras.ordenamiento import limite_inferior, merge_sort  # noqa: E402
@@ -50,14 +53,14 @@ OPERACIONES = [
     ("recorrido", "R7", "recorrido(ruta)", "O(L)", "L = paradas de la ruta; no depende del tamaño de la red"),
     ("cerrar", "R8", "cerrar + deshacer", "O(log n)", "estaciones"),
     ("deshacer", "R9", "deshacer + rehacer de un cierre", "O(log n)", "estaciones"),
-    ("fila", "R10", "simular_fila con P = 20.000 × factor", "O(P)", "P = pasajeros"),
+    ("fila", "R10", "simular_fila con P = 2 × estaciones, llegadas desordenadas", "O(P log P)", "P = pasajeros (ordenar las llegadas domina)"),
     ("viaje", "R5", "viaje(origen, destino)", "No se evalúa", "suma de longitudes de las rutas del origen y destino"),
 ]
 
 BANDAS = {
     "O(1)": (0.7, 1.4), "O(log n + k)": (0.7, 1.5), "O(log n + m)": (0.7, 1.5),
     "O(log h)": (0.7, 1.4), "O(log n)": (0.7, 1.5), "O(L)": (0.7, 1.4),
-    "O(n)": (1.6, 2.6), "O(P)": (1.6, 2.6), "O(n^2)": (3.2, 5.0),
+    "O(n)": (1.6, 2.6), "O(P)": (1.6, 2.6), "O(P log P)": (1.7, 2.8), "O(n^2)": (3.2, 5.0),
 }
 
 
@@ -88,11 +91,12 @@ def por_consulta(red_fn, consultas, repeticiones=5):
 # ---------------------------------------------------------------- alternativas descartadas
 
 def fila_ingenua(llegadas, f, cap):
+    """Llegadas ya ordenadas; buses en f, 2f, ...; la fila es una lista con pop(0)."""
     res = [0] * len(llegadas)
-    fila, i, t, hechos = [], 0, 0, 0
+    fila, i, t, hechos = [], 0, f, 0
     while hechos < len(llegadas):
         if not fila and t < llegadas[i]:
-            t = -(-llegadas[i] // f) * f
+            t = max(f, -(-llegadas[i] // f) * f)
         while i < len(llegadas) and llegadas[i] <= t:
             fila.append(i)
             i += 1
@@ -107,8 +111,9 @@ def fila_ingenua(llegadas, f, cap):
 
 def medir_factor(factor, rnd):
     carpeta = generar(factor)
-    tiempo_carga = cronometrar(lambda: Red(carpeta), 3) * 1e6
+    t0 = time.perf_counter_ns()
     red = Red(carpeta)
+    tiempo_carga = (time.perf_counter_ns() - t0) / 1e3
     nombres = red.lista_estaciones()
     rutas = red.lista_rutas()
     Q = 2000
@@ -142,11 +147,8 @@ def medir_factor(factor, rnd):
         red.deshacer()
         red.rehacer()
 
-    P = 20000 * factor
-    llegadas, t = [], 0
-    for _ in range(P):
-        t += rnd.randint(0, 1)
-        llegadas.append(t)
+    P = 2 * len(nombres)                              # pasajeros: crece con la red
+    llegadas = [rnd.randrange(2 * P) for _ in range(P)]   # segundos, desordenadas
 
     tiempos = {
         "carga": tiempo_carga,
@@ -159,7 +161,7 @@ def medir_factor(factor, rnd):
         "recorrido": por_consulta(red.recorrido, rutas_q),
         "cerrar": por_consulta(cerrar, est[:1000]),
         "deshacer": por_consulta(deshacer_rehacer, [()] * 1000),
-        "fila": cronometrar(lambda: simular_fila(llegadas, 4, 160), 3) * 1e6,
+        "fila": cronometrar(lambda: simular_fila(llegadas, 60, 160), 3) * 1e6,
         "viaje": por_consulta(red.viaje, viajes, 3),
     }
 
@@ -187,8 +189,8 @@ def medir_factor(factor, rnd):
                 return i
         return len(h)
 
-    # R7: una ruta larga de L = 2000 × factor paradas, insertar y quitar en el medio.
-    L = 2000 * factor
+    # R7: una ruta larga de L = n paradas, insertar y quitar en el medio.
+    L = len(nombres)
     lista = ListaDoble()
     nodos = []
     for i in range(L):
@@ -208,14 +210,14 @@ def medir_factor(factor, rnd):
         arreglo.pop(L // 2)
 
     # R10: hora pico saturada (llegan más personas de las que caben): la fila crece.
-    saturada = [i // 400 for i in range(P)]          # 400 personas por minuto, buses de 160 cada 4 min
+    saturada = [i // 7 for i in range(P)]            # 7 personas por segundo; un bus de 160 cada 60 s
 
     comparaciones = {
-        "R1": (por_consulta(red.estado, est), por_consulta(lambda n: n in lista_nombres, est[:300])),
+        "R1": (por_consulta(red.estado, est), por_consulta(lambda n: n in lista_nombres, est[:100], 3)),
         "R4": (por_consulta(limite_inferior, horas), por_consulta(r4_lineal, horas)),
-        "R6": (por_consulta(red.ranking, [(10,)] * 500), por_consulta(r6_recalcular, [(10,)] * 50, 3)),
-        "R10": (cronometrar(lambda: simular_fila(saturada, 4, 160), 3) * 1e6,
-                cronometrar(lambda: fila_ingenua(saturada, 4, 160), 1) * 1e6),
+        "R6": (por_consulta(red.ranking, [(10,)] * 500), por_consulta(r6_recalcular, [(10,)] * 5, 3)),
+        "R10": (cronometrar(lambda: simular_fila(saturada, 60, 160), 3) * 1e6,
+                cronometrar(lambda: fila_ingenua(saturada, 60, 160), 1) * 1e6),
         "R2": (por_consulta(red.autocompletar, pref), por_consulta(r2_arreglo, pref)),
         "R7": (por_consulta(r7_lista, [()] * 2000), por_consulta(r7_arreglo, [()] * 2000)),
     }
@@ -229,7 +231,7 @@ COMPARACIONES = [
     ("R2", "AVL solo de abiertas", "Arreglo ordenado saltando cerradas (50 % cerradas)"),
     ("R4", "Búsqueda binaria propia", "Recorrido lineal de las horas"),
     ("R6", "AVL de ranking", "Recalcular y ordenar en cada consulta"),
-    ("R7", "Lista doble: insertar y quitar en medio (L = 2.000 × factor)", "Arreglo: list.insert y list.pop en medio"),
+    ("R7", "Lista doble: insertar y quitar en medio (L = n)", "Arreglo: list.insert y list.pop en medio"),
     ("R10", "Cola circular (hora pico saturada)", "list.pop(0) (hora pico saturada)"),
 ]
 
@@ -248,7 +250,7 @@ def main(factores):
     rnd = random.Random(2021)
     tamanos, tiempos, comps = [], {op[0]: [] for op in OPERACIONES}, {c[0]: ([], []) for c in COMPARACIONES}
     for f in factores:
-        print("Midiendo red x%d…" % f, flush=True)
+        print("Midiendo red x%d (~%d estaciones)…" % (f, 147 * f), flush=True)
         tam, t, c = medir_factor(f, rnd)
         tamanos.append(tam)
         for k, v in t.items():
@@ -287,4 +289,4 @@ def main(factores):
 
 
 if __name__ == "__main__":
-    main([int(x) for x in sys.argv[1:]] or [1, 2, 4, 8])
+    main([int(x) for x in sys.argv[1:]] or FACTORES_PROFESOR)

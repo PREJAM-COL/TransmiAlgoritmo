@@ -30,7 +30,7 @@ class Red:
     # ------------------------------------------------------------ Consultas
 
     def estado(self, nombre):
-        """R1. "abierta", "cerrada" o "no existe"."""
+        """R1. "ABIERTA", "CERRADA" o "NO EXISTE"."""
         return consultas.estado(self, nombre)
 
     def autocompletar(self, prefijo, k):

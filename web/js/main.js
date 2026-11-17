@@ -129,7 +129,7 @@ async function seleccionar(nombre, { delUsuario = false } = {}) {
   const d = r.datos;
   if (!d) return;
   if (delUsuario && vistaActual && vistaActual.alSeleccionarEstacion) vistaActual.alSeleccionarEstacion(nombre);
-  const abierta = d.estado === 'abierta';
+  const abierta = d.estado === 'ABIERTA';
   $('#estacion').innerHTML = `
     <div class="est-cab"><span class="eyebrow">Estación <span class="req">R1</span></span>
       <h2 class="est-nombre">${esc(d.nombre)}</h2>
@@ -161,10 +161,10 @@ $('#estacion').addEventListener('click', (e) => {
 
 async function pintarRanking() {
   const r = await motor.llamar('ranking', 5);
-  const top = r.datos;
-  const max = Math.max(1, ...top.map((n) => estados.get(n).buses));
-  $('#ranking').innerHTML = top.map((n) => `<li><button class="enlace" data-n="${esc(n)}">${esc(n)}</button>
-    <span class="n">${fmtN(estados.get(n).buses)}</span><span class="barra"><i style="width:${(100 * estados.get(n).buses / max).toFixed(1)}%"></i></span></li>`).join('');
+  const top = r.datos;                      // R6: [[nombre, buses_por_dia], ...]
+  const max = Math.max(1, ...top.map(([, b]) => b));
+  $('#ranking').innerHTML = top.map(([n, b]) => `<li><button class="enlace" data-n="${esc(n)}">${esc(n)}</button>
+    <span class="n">${fmtN(b)}</span><span class="barra"><i style="width:${(100 * b / max).toFixed(1)}%"></i></span></li>`).join('');
 }
 $('#ranking').addEventListener('click', (e) => { const b = e.target.closest('[data-n]'); if (b) seleccionar(b.dataset.n); });
 

@@ -1,5 +1,9 @@
 """Puente entre el motor y la interfaz web (dueño: Daniel).
 
+Es parte del front (por eso vive en web/): la interfaz no llama al motor
+directamente desde JavaScript, sino a estas funciones de Python, que llaman a
+los métodos del contrato de Red. No resuelve ningún requisito por su cuenta.
+
 Corre dentro de Pyodide (en el Web Worker) y también en CPython para las
 pruebas. Traduce llamadas JSON a métodos de Red y devuelve JSON.
 
@@ -97,6 +101,8 @@ def detalle_estacion(nombre, hora):
     proximos = []
     for r in rutas:
         p = _red.proximo_bus(nombre, r, hora)
+        if p is None:                       # R4 da None tras el último bus: la app muestra el primero de mañana
+            p = _red.proximo_bus(nombre, r, "00:00")
         if p is not None:
             espera = (minutos(p) - minutos(hora)) % 1440
             proximos.append({"ruta": r, "hora": p, "espera": espera})
@@ -117,6 +123,8 @@ def itinerario(origen, destino, hora):
         i, j = rec.index(sube), rec.index(baja)
         paradas = rec[i:j + 1]
         sale_txt = _red.proximo_bus(sube, ruta, formato(t % 1440))
+        if sale_txt is None:                # ya no hay más hoy: el primero de mañana
+            sale_txt = _red.proximo_bus(sube, ruta, "00:00")
         sale = minutos(sale_txt) if sale_txt else t
         if sale < t % 1440:
             sale += 1440 * (t // 1440 + 1)
@@ -188,7 +196,7 @@ def _pares_sin_viaje():
     Llama a R5 (motor) una vez por par: n_E² viajes. Es un análisis para la
     interfaz, no un requisito; la regla de qué es un viaje la sigue poniendo R5.
     """
-    abiertas = [n for n in _red.lista_estaciones() if _red.estado(n) == "abierta"]
+    abiertas = [n for n in _red.lista_estaciones() if _red.estado(n) == "ABIERTA"]
     sin = set()
     for o in abiertas:
         for d in abiertas:
@@ -199,11 +207,11 @@ def _pares_sin_viaje():
 
 def impacto_cierre(nombre):
     """Cierra la estación (R8, queda en el historial de R9) y mide qué viajes se pierden."""
-    if _red.estado(nombre) != "abierta":
+    if _red.estado(nombre) != "ABIERTA":
         return {"cerrada": False}
     t = time.perf_counter()
     antes_abiertas, antes = _pares_sin_viaje()
-    top_antes = _red.ranking(5)
+    top_antes = [n for n, _ in _red.ranking(5)]
     _red.cerrar(nombre)
     despues_abiertas, despues = _pares_sin_viaje()
     ms = (time.perf_counter() - t) * 1000
@@ -222,7 +230,7 @@ def impacto_cierre(nombre):
         "pares_propios": pares_propios, "ejemplos": [list(p) for p in nuevos[:8]],
         "mas_afectadas": [list(x) for x in mas_afectadas],
         "rutas": [{"ruta": r, "paradas": _red.recorrido(r)} for r in _red.info_estacion(nombre)[2]],
-        "ranking_antes": top_antes, "ranking_despues": _red.ranking(5),
+        "ranking_antes": top_antes, "ranking_despues": [n for n, _ in _red.ranking(5)],
     }
 
 
@@ -284,13 +292,13 @@ def fila(llegadas, frecuencia, capacidad):
 
 
 def generar_llegadas(pasajeros, minutos_pico, semilla=7):
-    """Llegadas de ejemplo para R10 (presentación): más gente en el centro del pico."""
+    """Llegadas de ejemplo para R10, en SEGUNDOS: más gente en el centro del pico."""
     import random
     rnd = random.Random(semilla)
     xs = []
     for _ in range(pasajeros):
         x = (rnd.random() + rnd.random() + rnd.random()) / 3     # campana suave
-        xs.append(int(x * minutos_pico))
+        xs.append(int(x * minutos_pico * 60))
     xs.sort()
     return xs
 

@@ -7,7 +7,7 @@ from tests.apoyo import DATOS, MINI
 
 def referencia(red, o, d):
     """Fuerza bruta con dict/set (permitidos en pruebas) y el mismo criterio de desempate."""
-    if red.estado(o) != "abierta" or red.estado(d) != "abierta":
+    if red.estado(o) != "ABIERTA" or red.estado(d) != "ABIERTA":
         return None
     if o == d:
         return []
@@ -30,7 +30,7 @@ def referencia(red, o, d):
             t = seq[j]
             if t == d:
                 break
-            if red.estado(t) != "abierta":
+            if red.estado(t) != "ABIERTA":
                 continue
             for r2 in rutas:
                 if r2 != r1 and t in pos[r2] and d in pos[r2] and pos[r2][d] > pos[r2][t]:

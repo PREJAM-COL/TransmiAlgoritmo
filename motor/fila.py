@@ -1,53 +1,92 @@
-"""Modelo: los buses salen en t = 0, f, 2f, ...; cada uno se lleva hasta
-`capacidad` personas que ya estén en la fila, en orden de llegada (FIFO).
+"""R10 · Fila de abordaje en hora pico (dueño: Tomás). Función suelta, fuera de Red.
 
-La fila es una ColaCircular: encolar y desencolar son O(1). Con list.pop(0)
-cada desencolar costaría O(P) y con cientos de miles de pasajeros el total
-sería O(P^2).
+Modelo (enunciado del profesor):
+  - `llegadas`: segundo en que llega cada persona. Pueden venir DESORDENADAS.
+  - Los buses salen en t = f, 2f, 3f, ... (f = `frecuencia`, en segundos).
+  - Cada bus se lleva hasta `capacidad` personas de la fila, en orden de
+    llegada (FIFO). Quien llega justo cuando sale un bus alcanza a subir.
+  - Se devuelve, en el MISMO orden de `llegadas`, el segundo en que salió el
+    bus de cada persona.
 
-Salto de buses vacíos: si la fila está vacía y el siguiente pasajero llega
-más tarde, se salta directo al primer bus que sale después de su llegada.
-Así cada bus que se procesa sube al menos a una persona y el total es O(P),
-aunque las llegadas empiecen en el minuto 1.000.000.
+Ejemplo: simular_fila([30, 5, 5, 70], 60, 2) -> [120, 60, 60, 120].
 
-Complejidad: O(P) en tiempo y espacio, P = número de pasajeros.
+Pasos:
+  1. Orden de llegada. Si `llegadas` ya viene ordenada (se revisa en O(P)),
+     se usa tal cual. Si no, se ordenan los pares (segundo, posición) con
+     nuestro merge sort: O(P log P). La posición desempata, así dos personas
+     que llegan en el mismo segundo suben en el orden en que aparecen.
+  2. Simulación con una ColaCircular: encolar y desencolar son O(1). Con
+     list.pop(0) cada desencolar costaría O(P) y el total sería O(P^2).
+  3. Salto de buses vacíos: si la fila está vacía y la siguiente persona llega
+     más tarde, se salta directo al primer bus que sale en o después de su
+     llegada. Así cada bus que se procesa sube al menos a una persona.
+
+Complejidad: O(P) si las llegadas vienen ordenadas y O(P log P) si no;
+O(P) de espacio. P = número de personas. No depende de la hora de llegada
+(una llegada en el segundo 1.000.000 no simula un millón de buses vacíos).
 """
 
 from .estructuras.cola_circular import ColaCircular
+from .estructuras.ordenamiento import merge_sort
+
+
+def _es_numero(x):
+    return (isinstance(x, int) or isinstance(x, float)) and not isinstance(x, bool)
 
 
 def simular_fila(llegadas, frecuencia, capacidad):
-    """Minuto en que aborda cada pasajero, en el mismo orden de `llegadas`.
+    """R10. Segundo en que salió el bus de cada persona, en el orden de `llegadas`.
 
-    llegadas: minutos de llegada en orden no decreciente.
-    frecuencia: minutos entre buses (> 0).
-    capacidad: pasajeros máximos por bus (> 0).
-    Devuelve [] si no hay pasajeros o los parámetros no son válidos.
+    llegadas: segundos de llegada (en cualquier orden).
+    frecuencia: segundos entre buses (> 0); el primero sale en `frecuencia`.
+    capacidad: cupo por bus (entero > 0).
+    Devuelve [] si no hay personas o los parámetros no son válidos.
     """
-    if llegadas is None or frecuencia is None or capacidad is None:
+    if llegadas is None or not _es_numero(frecuencia) or not isinstance(capacidad, int):
         return []
     p = len(llegadas)
     if p == 0 or not frecuencia > 0 or not capacidad > 0:
         return []
+    for x in llegadas:
+        if not _es_numero(x):
+            return []
 
+    # 1. Orden de llegada (índices de las personas, de la primera a la última).
+    ordenada = True
+    for i in range(1, p):
+        if llegadas[i] < llegadas[i - 1]:
+            ordenada = False
+            break
+    if ordenada:
+        orden = list(range(p))
+    else:
+        pares = merge_sort([(llegadas[i], i) for i in range(p)])
+        orden = [par[1] for par in pares]
+
+    # 2 y 3. Simulación bus por bus.
     res = [0] * p
     cola = ColaCircular()
-    i = 0          # siguiente pasajero que todavía no llega a la fila
-    t = 0          # hora del bus actual
+    j = 0              # siguiente persona (en orden de llegada) que aún no está en la fila
+    k = 1              # número del bus actual: sale en k * frecuencia
     abordaron = 0
     while abordaron < p:
-        if cola.vacia() and t < llegadas[i]:
-            q = llegadas[i] // frecuencia
-            t = q * frecuencia
-            if t < llegadas[i]:
-                t = (q + 1) * frecuencia
-        while i < p and llegadas[i] <= t:
-            cola.encolar(i)
-            i += 1
+        salida = k * frecuencia
+        if cola.vacia() and salida < llegadas[orden[j]]:
+            # nadie esperando: saltar al primer bus que sale en o después de esa llegada
+            a = llegadas[orden[j]]
+            k = int(a // frecuencia)
+            if k * frecuencia < a:
+                k += 1
+            if k < 1:
+                k = 1
+            salida = k * frecuencia
+        while j < p and llegadas[orden[j]] <= salida:
+            cola.encolar(orden[j])
+            j += 1
         suben = 0
         while suben < capacidad and not cola.vacia():
-            res[cola.desencolar()] = t
+            res[cola.desencolar()] = salida
             suben += 1
             abordaron += 1
-        t += frecuencia
+        k += 1
     return res

@@ -1,7 +1,7 @@
 import unittest
 
 from motor import Red
-from tests.apoyo import MINI, requiere, verificar_invariantes
+from tests.apoyo import nombres, MINI, requiere, verificar_invariantes
 
 
 class TestR8Cierres(unittest.TestCase):
@@ -10,10 +10,10 @@ class TestR8Cierres(unittest.TestCase):
 
     def test_cerrar_y_reabrir(self):
         self.assertTrue(self.red.cerrar("ALFA"))
-        self.assertEqual(self.red.estado("ALFA"), "cerrada")
+        self.assertEqual(self.red.estado("ALFA"), "CERRADA")
         verificar_invariantes(self.red)
         self.assertTrue(self.red.reabrir("ALFA"))
-        self.assertEqual(self.red.estado("ALFA"), "abierta")
+        self.assertEqual(self.red.estado("ALFA"), "ABIERTA")
         verificar_invariantes(self.red)
 
     def test_cambios_sin_efecto_devuelven_false(self):
@@ -27,7 +27,7 @@ class TestR8Cierres(unittest.TestCase):
         self.red.cerrar("ALFA")
         self.assertEqual(self.red.autocompletar("A", 5), [])
         self.assertNotIn("ALFA", self.red.rango("A", "Z"))
-        self.assertNotIn("ALFA", self.red.ranking(20))
+        self.assertNotIn("ALFA", nombres(self.red.ranking(20)))
         self.assertIsNone(self.red.proximo_bus("ALFA", "R1", "06:00"))
 
     @requiere("viaje")
@@ -42,11 +42,11 @@ class TestR8Cierres(unittest.TestCase):
                          [("R1", "BETA", "CALLE 2"), ("R2", "CALLE 2", "ECO")])
 
     def test_ranking_se_actualiza(self):
-        self.assertEqual(self.red.ranking(1), ["ALFA"])
+        self.assertEqual(nombres(self.red.ranking(1)), ["ALFA"])
         self.red.cerrar("ALFA")
-        self.assertEqual(self.red.ranking(1), ["BETA"])
+        self.assertEqual(nombres(self.red.ranking(1)), ["BETA"])
         self.red.reabrir("ALFA")
-        self.assertEqual(self.red.ranking(1), ["ALFA"])
+        self.assertEqual(nombres(self.red.ranking(1)), ["ALFA"])
 
 
 if __name__ == "__main__":

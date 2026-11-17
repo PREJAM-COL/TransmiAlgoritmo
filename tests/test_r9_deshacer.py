@@ -22,10 +22,10 @@ class TestR9Mini(unittest.TestCase):
         self.assertTrue(self.red.deshacer())   # quitar
         self.assertEqual(self.red.recorrido("R1"), ["ALFA", "BETA", "CALLE 1", "CALLE 2"])
         self.assertTrue(self.red.deshacer())   # cerrar
-        self.assertEqual(self.red.estado("ALFA"), "abierta")
+        self.assertEqual(self.red.estado("ALFA"), "ABIERTA")
         self.assertFalse(self.red.deshacer())
         self.assertTrue(self.red.rehacer())
-        self.assertEqual(self.red.estado("ALFA"), "cerrada")
+        self.assertEqual(self.red.estado("ALFA"), "CERRADA")
         verificar_invariantes(self.red)
 
     def test_cambio_nuevo_borra_rehacer(self):
@@ -33,7 +33,7 @@ class TestR9Mini(unittest.TestCase):
         self.red.deshacer()
         self.red.cerrar("BETA")
         self.assertFalse(self.red.rehacer())
-        self.assertEqual(self.red.estado("ALFA"), "abierta")
+        self.assertEqual(self.red.estado("ALFA"), "ABIERTA")
 
     def test_operacion_fallida_no_entra_al_historial(self):
         self.red.cerrar("ALFA")

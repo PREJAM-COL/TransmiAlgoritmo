@@ -15,12 +15,12 @@ function pasos(ctx) {
     {
       titulo: 'TransmiAlgoritmo', req: 'Proyecto',
       idea: 'Un planeador sobre la red real de TransMilenio: 147 estaciones, 181 rutas y 140.492 horarios. El motor está escrito en Python, con estructuras propias, y corre aquí mismo en el navegador.',
-      ficha: [['Equipo', 'Miguel Preciado · Tomás Gómez · Daniel Bernate'], ['Reglas', 'Sin dict, set, sorted, heapq ni librerías dentro de motor/'], ['Pruebas', '132 pruebas, incluido un validador que revisa el código del motor']],
+      ficha: [['Equipo', 'Miguel Preciado · Tomás Gómez · Daniel Bernate'], ['Reglas', 'Sin dict, set, sorted, heapq ni librerías dentro de motor/'], ['Pruebas', '136 pruebas, incluido un validador que revisa el código del motor']],
       demo: async () => { irA('viaje'); ctx.mapa.limpiar(); ctx.mapa.ajustar(); await espera(500); if (!ctx.enPlano()) ctx.alternarPlano(); },
     },
     {
       titulo: '¿Existe y está abierta?', req: 'R1', dueno: 'Miguel',
-      idea: 'La consulta más frecuente. Una tabla hash propia lleva cada nombre a su estación sin recorrer las demás.',
+      idea: 'La consulta más frecuente. Una tabla hash propia lleva cada nombre a su estación sin recorrer las demás y responde "ABIERTA", "CERRADA" o "NO EXISTE".',
       ficha: [['Estructura', 'Tabla hash: direccionamiento abierto, sondeo lineal, lápidas'], ['Complejidad', 'O(1) esperado · n = estaciones'], ['Descartado', 'Buscar en una lista: O(n)']],
       demo: async () => { irA('red'); await espera(400); vistas.red.consultarEstado('RICAURTE'); },
     },
@@ -38,7 +38,7 @@ function pasos(ctx) {
     },
     {
       titulo: 'Próximo bus', req: 'R4', dueno: 'Tomás',
-      idea: 'Cada parada guarda sus horas ordenadas (ordenamiento por conteo al cargar). La búsqueda binaria encuentra la siguiente; si ya no hay, da la vuelta al día siguiente.',
+      idea: 'Cada parada guarda sus horas ordenadas (ordenamiento por conteo al cargar). La búsqueda binaria encuentra la siguiente; si ya pasó el último bus del día, devuelve None.',
       ficha: [['Estructura', 'Arreglo ordenado por parada + tabla hash'], ['Complejidad', 'O(log h) · h = horas de esa ruta en esa estación'], ['Carga', 'Conteo con 1.440 cubetas: O(n_H)']],
       demo: async () => { irA('viaje'); await espera(300); seleccionar('RICAURTE'); },
     },
@@ -50,7 +50,7 @@ function pasos(ctx) {
     },
     {
       titulo: 'Ranking', req: 'R6', dueno: 'Tomás',
-      idea: '"Se consulta mucho y cambia poco": un segundo AVL ordenado por (−buses, nombre). Consultar es leer los primeros k; un cambio reubica una estación en log n.',
+      idea: '"Se consulta mucho y cambia poco": un segundo AVL ordenado por (−buses, nombre). Consultar es leer los primeros k como (nombre, buses por día); un cambio reubica una estación en log n.',
       ficha: [['Estructura', 'AVL con clave (−buses_dia, nombre)'], ['Complejidad', 'Consulta O(log n + k) · cambio O(log n)'], ['Descartado', 'Ordenar en cada consulta: medido, 1.000 veces más lento']],
       demo: async () => { const r = document.querySelector('#ranking'); r && r.scrollIntoView({ behavior: 'smooth', block: 'center' }); r && r.classList.add('foco'); await espera(2400); r && r.classList.remove('foco'); },
     },
@@ -74,20 +74,20 @@ function pasos(ctx) {
     },
     {
       titulo: 'Fila de abordaje', req: 'R10', dueno: 'Tomás',
-      idea: 'Cientos de miles de pasajeros en orden de llegada. Con una cola circular, encolar y desencolar es O(1); con list.pop(0) sería O(P²).',
-      ficha: [['Estructura', 'Cola circular sobre un arreglo'], ['Complejidad', 'O(P) · P = pasajeros'], ['Truco', 'Saltar buses vacíos']],
+      idea: 'Las llegadas (en segundos) pueden venir desordenadas: primero se ordenan con merge sort y luego suben en orden de llegada. Los buses salen en f, 2f, 3f… Con una cola circular, encolar y desencolar es O(1); con list.pop(0) sería O(P²).',
+      ficha: [['Estructura', 'Merge sort + cola circular sobre un arreglo'], ['Complejidad', 'O(P log P) · O(P) si ya vienen ordenadas · P = pasajeros'], ['Ejemplo del profesor', '[30, 5, 5, 70], 60, 2 → [120, 60, 60, 120]']],
       demo: async () => { irA('horapico'); await espera(400); vistas.horapico.simular(); },
     },
     {
       titulo: 'Panel de rendimiento', req: 'R11', dueno: 'Tomás y Miguel',
-      idea: 'Cada operación con la red ×1, ×2, ×4 y ×8, contra la complejidad esperada. Y la carrera: la estructura elegida contra la descartada, con tiempos medidos.',
-      ficha: [['Resultado', 'Las 11 operaciones evaluadas crecen como se esperaba'], ['Método', 'Duplicar n y medir la razón t(2n)/t(n)']],
+      idea: 'Cada operación con redes de 10.000, 20.000, 40.000 y 80.000 estaciones, los mismos tamaños del profesor, contra la complejidad esperada. Y la carrera: la estructura elegida contra la descartada, con tiempos medidos.',
+      ficha: [['Resultado', 'Las 11 operaciones evaluadas crecen como se esperaba'], ['Método', 'Duplicar n y medir la razón t(2n)/t(n)'], ['Red más grande', '80.000 estaciones · 1 millón de paradas · 1,9 millones de horarios']],
       demo: async () => { irA('rendimiento'); await espera(500); await vistas.rendimiento.carreraDe('R10', 3); },
     },
     {
       titulo: 'Las pruebas, en vivo', req: 'Calidad', dueno: 'Tomás',
       idea: 'Las mismas pruebas de py -m unittest, corriendo aquí dentro de Python. Cada cuadro es una prueba: estructuras, R1 a R10, invariantes, el contrato y el validador que revisa que el motor no use nada prohibido.',
-      ficha: [['Total', '132 pruebas'], ['Las más exigentes', 'R5 contra fuerza bruta · 10.000 operaciones aleatorias de R9'], ['Validador', 'Recorre el código del motor con ast']],
+      ficha: [['Total', '136 pruebas'], ['Las más exigentes', 'R5 contra fuerza bruta · 10.000 operaciones aleatorias de R9'], ['Validador', 'Recorre el código del motor con ast']],
       demo: async () => { irA('rendimiento'); await espera(500); await vistas.rendimiento.correrPruebas(); },
     },
     {
