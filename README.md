@@ -7,7 +7,7 @@ Proyecto final de Estructuras de Datos y Algoritmos: un motor que responde las c
 
 ## App desplegada
 
-**https://transmialgortimomtd.netlify.app**
+(https://transmialgoritmo.netlify.app/)
 
 ## Cómo arrancar
 
