@@ -10,8 +10,7 @@ venv/
 # Redes generadas por los benchmarks (se regeneran con un comando)
 benchmarks/redes/
 
-# Paquetes de entrega por rondas (se copian a mano, no se suben)
-rondas/
+# Archivos comprimidos
 *.zip
 
 # Sistema operativo y editores
