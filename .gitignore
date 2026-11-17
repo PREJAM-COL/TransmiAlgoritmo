@@ -4,6 +4,8 @@ __pycache__/
 .venv/
 venv/
 
+# Redes grandes que genera benchmarks/medir.py (pesan cientos de MB; se regeneran con un comando)
+benchmarks/redes/
 
 # Sistema operativo y editores
 .DS_Store
@@ -11,4 +13,3 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
-
