@@ -4,14 +4,6 @@ __pycache__/
 .venv/
 venv/
 
-# Material del curso que no se publica
-*.pptx
-
-# Redes generadas por los benchmarks (se regeneran con un comando)
-benchmarks/redes/
-
-# Archivos comprimidos
-*.zip
 
 # Sistema operativo y editores
 .DS_Store
@@ -20,5 +12,3 @@ desktop.ini
 .vscode/
 .idea/
 
-# Configuración local de Claude Code
-.claude/
