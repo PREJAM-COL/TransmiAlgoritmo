@@ -1,0 +1,6 @@
+route_id,service_id,trip_id,direction_id
+R1,HABIL,t1,0
+R1,HABIL,t2,0
+R1,HABIL,t3,1
+R1,HABIL,t4,0
+R2,SABADO,t5,0

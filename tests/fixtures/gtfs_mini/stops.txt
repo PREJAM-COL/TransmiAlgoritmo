@@ -1,0 +1,7 @@
+stop_id,stop_name,location_type,parent_station
+P_RIC,Ricaurte,1,
+RIC_A,Ricaurte - Vagón A,0,P_RIC
+RIC_B,Ricaurte - Vagón B,0,P_RIC
+HER,Héroes ,0,
+C26,Calle  26,0,
+JIM,Av. Jiménez,0,

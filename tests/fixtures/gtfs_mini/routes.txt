@@ -1,0 +1,3 @@
+route_id,route_short_name,route_long_name
+R1,B10,Portal Norte - Universidades
+R2,A51,Ricaurte - Jiménez
