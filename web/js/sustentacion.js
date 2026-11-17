@@ -93,7 +93,7 @@ function pasos(ctx) {
     {
       titulo: 'Gracias', req: 'Preguntas',
       idea: 'Todo lo que viste lo calculó el motor en vivo. Cada decisión, con su alternativa descartada y su O grande, está en el README (R12).',
-      ficha: [['En línea', 'transmialgortimomtd.netlify.app'], ['Arranque', 'py app.py'], ['Pruebas', 'py -m unittest'], ['Mediciones', 'py benchmarks/medir.py'], ['Datos', 'py conversion/gtfs_a_csv.py GTFS.zip datos']],
+      ficha: [['En línea', 'transmialgoritmo.netlify.app'], ['Arranque', 'py app.py'], ['Pruebas', 'py -m unittest'], ['Mediciones', 'py benchmarks/medir.py'], ['Datos', 'py conversion/gtfs_a_csv.py GTFS.zip datos']],
       demo: async () => { irA('viaje'); ctx.mapa.ajustar(); },
     },
   ];
