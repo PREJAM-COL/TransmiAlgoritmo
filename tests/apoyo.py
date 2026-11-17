@@ -1,4 +1,5 @@
-"""
+"""Utilidades compartidas por las pruebas (aquí sí se permite dict, set, sorted…).
+
 - Rutas a la red real (datos/) y a la mini red de prueba (tests/fixtures/mini/).
 - verificar_invariantes(red): las seis reglas de docs/fase-2-diseno.md §6.
 - foto(red): resumen comparable del estado de la red, para pruebas de R9.
@@ -16,12 +17,12 @@ MINI = os.path.join(RAIZ, "tests", "fixtures", "mini")
 def requiere(*modulos):
     """Salta la prueba si algún módulo del motor todavía no existe.
 
-    El motor se construye por rondas (una por integrante). Una prueba que
+    El motor se construye por módulos (uno por requisito). Una prueba que
     mezcla requisitos, por ejemplo "cerrar una estación cambia el viaje",
     solo corre cuando ya están todos los módulos que usa.
     """
     faltan = [m for m in modulos if importlib.util.find_spec("motor." + m) is None]
-    return unittest.skipIf(faltan, "llega en una ronda posterior: motor/" + ", motor/".join(faltan) + ".py")
+    return unittest.skipIf(faltan, "falta el módulo: motor/" + ", motor/".join(faltan) + ".py")
 
 
 def verificar_invariantes(red):
