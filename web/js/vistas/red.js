@@ -44,9 +44,9 @@ export function crearVistaRed(ctx) {
     if (!n) return;
     const r = await motor.llamar('estado', n);
     tiempoMotor(r.ms);
-    const clase = { abierta: 'ok', cerrada: 'cerr', 'no existe': 'no' }[r.datos];
+    const clase = { ABIERTA: 'ok', CERRADA: 'cerr', 'NO EXISTE': 'no' }[r.datos];
     $('#r-res-estado').innerHTML = `<p class="respuesta"><span class="chip ${clase}">${r.datos}</span> ${esc(n)} <span class="tiempo">${textoMs(r.ms)} · tabla hash</span></p>`;
-    if (r.datos !== 'no existe') ctx.seleccionar(n);
+    if (r.datos !== 'NO EXISTE') ctx.seleccionar(n);
   });
 
   $('#r-form-rango').addEventListener('submit', async (e) => {

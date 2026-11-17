@@ -1,4 +1,7 @@
-"""Genera redes de tamaño creciente (×1, ×2, ×4…) a partir de la red real. Dueño: Tomás.
+"""Genera redes de tamaño creciente a partir de la red real. Dueño: Tomás.
+
+El profesor mide en redes de 10.000, 20.000, 40.000 y 80.000 estaciones. La red
+real tiene 147, así que esas redes son 68, 136, 272 y 544 copias de ella.
 
 Como el script del profesor, duplicamos la red y medimos. Una red ×f tiene f
 copias de cada estación, ruta y horario. Las copias se nombran con un sufijo
@@ -11,7 +14,12 @@ conectada. Así crecen a la vez estaciones, rutas, paradas y horarios (todo n
 se multiplica por f) y el tamaño de cada ruta (L) y las horas por parada (h)
 se mantienen: justo lo que permite ver si una operación depende de n o no.
 
-Uso:  py benchmarks/generar_red.py 4          (crea benchmarks/redes/x4/)
+Horarios livianos: copiar los 140.000 horarios 544 veces daría 76 millones de
+filas. Por eso cada copia se queda con 1 de cada PASO_HORARIOS filas (las
+horas de cada parada siguen ordenadas y repartidas en el día). Así los
+horarios también crecen proporcionalmente a n, que es lo que importa medir.
+
+Uso:  py benchmarks/generar_red.py 68         (crea benchmarks/redes/x68/, ~10.000 estaciones)
 """
 
 import csv
@@ -21,6 +29,10 @@ import sys
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATOS = os.path.join(RAIZ, "datos")
 REDES = os.path.join(RAIZ, "benchmarks", "redes")
+PASO_HORARIOS = 40
+
+# Copias de la red real para llegar a los tamaños que mide el profesor.
+FACTORES_PROFESOR = [68, 136, 272, 544]      # ≈ 10.000, 20.000, 40.000 y 80.000 estaciones
 
 
 def sufijo(i):
@@ -74,7 +86,8 @@ def generar(factor, destino=None):
         w.writerow(["ruta", "estacion", "hora"])
         for c in range(factor):
             s = sufijo(c)
-            for ruta, est, hora in horarios:
+            for i in range(0, len(horarios), PASO_HORARIOS):
+                ruta, est, hora = horarios[i]
                 w.writerow([ruta + s, est + s, hora])
             if c + 1 < factor:
                 for hora in ("06:00", "12:00", "18:00"):

@@ -17,7 +17,7 @@ const ARCHIVOS = [
   'motor/estructuras/__init__.py', 'motor/estructuras/tabla_hash.py', 'motor/estructuras/avl.py',
   'motor/estructuras/lista_doble.py', 'motor/estructuras/pila.py',
   'motor/estructuras/cola_circular.py', 'motor/estructuras/ordenamiento.py',
-  'api/__init__.py', 'api/puente.py',
+  'web/python/puente.py',
   'benchmarks/__init__.py', 'benchmarks/generar_red.py', 'benchmarks/medir.py',
   'datos/estaciones.csv', 'datos/rutas.csv', 'datos/horarios.csv',
 ];
@@ -55,7 +55,7 @@ async function copiar(rutas) {
 
 async function correrPruebas(id) {
   await copiar(ARCHIVOS_PRUEBAS);
-  const correr = py.runPython('from api.puente import correr_pruebas\ncorrer_pruebas');
+  const correr = py.runPython('from puente import correr_pruebas\ncorrer_pruebas');
   const avisar = (texto) => self.postMessage({ tipo: 'prueba', id, datos: JSON.parse(texto) });
   const resumen = correr(avisar).toJs({ dict_converter: Object.fromEntries });
   self.postMessage({ tipo: 'respuesta', id, ok: true, datos: resumen, ms: resumen.ms });
@@ -75,8 +75,8 @@ async function iniciar() {
   await copiar(ARCHIVOS);
 
   progreso('red', 'Construyendo las estructuras', 0.8);
-  py.runPython("import sys, os\nsys.path.insert(0, '/proyecto')\nos.chdir('/proyecto')");
-  llamarPython = py.runPython('from api.puente import llamar\nllamar');
+  py.runPython("import sys, os\nsys.path.insert(0, '/proyecto')\nsys.path.insert(0, '/proyecto/web/python')\nos.chdir('/proyecto')");
+  llamarPython = py.runPython('from puente import llamar\nllamar');
   const r = JSON.parse(llamarPython('iniciar', JSON.stringify(['/proyecto/datos'])));
   if (!r.ok) throw new Error(r.error);
   progreso('listo', 'Listo', 1);

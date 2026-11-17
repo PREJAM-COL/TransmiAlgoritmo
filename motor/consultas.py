@@ -12,13 +12,13 @@ empiece por el prefijo.
 
 
 def estado(red, nombre):
-    """R1. "abierta", "cerrada" o "no existe". O(1) esperado (n = estaciones)."""
+    """R1. "ABIERTA", "CERRADA" o "NO EXISTE". O(1) esperado (n = estaciones)."""
     if not isinstance(nombre, str):
-        return "no existe"
+        return "NO EXISTE"
     e = red._estaciones.obtener(nombre)
     if e is None:
-        return "no existe"
-    return "abierta" if e.abierta else "cerrada"
+        return "NO EXISTE"
+    return "ABIERTA" if e.abierta else "CERRADA"
 
 
 def autocompletar(red, prefijo, k):

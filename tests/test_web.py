@@ -8,8 +8,12 @@ import os
 import re
 import unittest
 
-from api import puente
+import sys
+
 from tests.apoyo import DATOS, RAIZ
+
+sys.path.insert(0, os.path.join(RAIZ, "web", "python"))
+import puente  # noqa: E402  (el lado Python del front, en web/python/)
 
 
 class TestWeb(unittest.TestCase):
@@ -17,7 +21,7 @@ class TestWeb(unittest.TestCase):
         with open(os.path.join(RAIZ, "web", "js", "motor-worker.js"), encoding="utf-8") as f:
             listados = set(re.findall(r"'([\w/]+\.(?:py|csv))'", f.read()))
         necesarios = set()
-        for carpeta in ("motor", "api"):
+        for carpeta in ("motor", os.path.join("web", "python")):
             for base, _, archivos in os.walk(os.path.join(RAIZ, carpeta)):
                 for a in archivos:
                     if a.endswith(".py"):

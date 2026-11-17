@@ -84,7 +84,7 @@ class TestConversion(unittest.TestCase):
         convertir(GTFS, self.salida)
         red = Red(self.salida)
         self.assertEqual(red.info_advertencias(), 0)
-        self.assertEqual(red.estado("RICAURTE"), "abierta")
+        self.assertEqual(red.estado("RICAURTE"), "ABIERTA")
         self.assertEqual(red.proximo_bus("RICAURTE", "B10-1", "06:30"), "07:10")
         self.assertEqual(red.viaje("HEROES", "AV. JIMENEZ"), [("B10-1", "HEROES", "AV. JIMENEZ")])
 

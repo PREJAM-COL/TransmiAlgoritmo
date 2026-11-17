@@ -1,4 +1,6 @@
-"""Se consulta muy seguido y cambia poco." Por eso el ranking es un AVL que ya
+"""R6 · Ranking de estaciones por buses al día (dueño: Tomás).
+
+"Se consulta muy seguido y cambia poco." Por eso el ranking es un AVL que ya
 está ordenado por la clave (-buses_dia, nombre):
   - el signo menos pone primero a las de MÁS buses;
   - el nombre desempata alfabéticamente;
@@ -15,12 +17,12 @@ def clave_ranking(e):
 
 
 def ranking(red, k):
-    """Nombres de las k estaciones abiertas con más buses al día."""
+    """R6. (nombre, buses_por_dia) de las k estaciones abiertas con más buses, de mayor a menor."""
     res = []
     if not isinstance(k, int) or k <= 0:
         return res
     for _, e in red._ranking.desde():
-        res.append(e.nombre)
+        res.append((e.nombre, e.buses_dia))
         if len(res) == k:
             break
     return res

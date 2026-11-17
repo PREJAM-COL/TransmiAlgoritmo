@@ -23,4 +23,4 @@
 **Daniel Bernate**
 - Motor: contrato y fachada `motor/red.py`, `motor/__init__.py`, `motor/modelo.py`; `motor/estructuras/lista_doble.py` y `motor/estructuras/pila.py`; `motor/edicion.py` (R7); `motor/comandos.py` (R9); `motor/viaje.py` (R5, con la traza que anima los rayos X).
 - Pruebas: `test_lista_doble.py`, `test_pila.py`, `test_r5_viaje.py`, `test_r7_edicion.py`, `test_r9_deshacer.py`, `test_web.py`.
-- Integración: `api/puente.py` (incluye el impacto de un cierre y las pruebas en vivo), `web/js/motor.js`, `web/js/motor-worker.js`.
+- Integración: `web/python/puente.py` (el lado Python del front: impacto de un cierre y pruebas en vivo), `web/js/motor.js`, `web/js/motor-worker.js`.

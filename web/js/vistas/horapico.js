@@ -28,10 +28,11 @@ export function crearVistaHoraPico(ctx) {
     e.preventDefault();
     const P = +$('#h-p').value, D = +$('#h-d').value, f = +$('#h-f').value, c = +$('#h-c').value;
     $('#h-res').innerHTML = '<p class="pista">Simulando…</p>';
-    const llegadas = await motor.dato('generar_llegadas', P, D);
-    const r = await motor.llamar('fila', llegadas, f, c);
+    const llegadasSeg = await motor.dato('generar_llegadas', P, D);         // R10 trabaja en segundos
+    const r = await motor.llamar('fila', llegadasSeg, f * 60, c);
     tiempoMotor(r.ms);
-    const ab = r.datos.abordaje;
+    const llegadas = llegadasSeg.map((s) => s / 60);                         // y la gráfica, en minutos
+    const ab = r.datos.abordaje.map((s) => s / 60);
     let suma = 0, max = 0;
     for (let i = 0; i < ab.length; i++) { const w = ab[i] - llegadas[i]; suma += w; if (w > max) max = w; }
     const buses = new Set(ab).size;
@@ -39,16 +40,16 @@ export function crearVistaHoraPico(ctx) {
     serie = construirSerie(llegadas, ab, fin);
     $('#h-res').innerHTML = `<div class="resumen">
         <div><b>${(suma / ab.length).toFixed(1)}</b><span>min de espera promedio</span></div>
-        <div><b>${max}</b><span>min de espera máxima</span></div>
+        <div><b>${max.toFixed(1)}</b><span>min de espera máxima</span></div>
         <div><b>${fmtN(buses)}</b><span>buses con gente</span></div></div>
-      <p class="pista">El último bus sale en el minuto ${fmtN(fin)} del pico. El motor procesó ${fmtN(ab.length)} pasajeros en <b>${r.datos.ms} ms</b> con una cola circular: O(P).</p>
+      <p class="pista">El último bus sale en el minuto ${fmtN(Math.round(fin))} del pico (segundo ${fmtN(Math.round(fin * 60))}; el primero sale en el segundo ${fmtN(f * 60)}). El motor procesó ${fmtN(ab.length)} pasajeros en <b>${r.datos.ms} ms</b> con una cola circular: O(P) si llegan en orden, O(P log P) si hay que ordenarlas.</p>
       ${max > 30 ? `<p class="alerta">No cabe ni un alfiler: con un bus cada ${f} min y ${c} de cupo, la fila crece más rápido de lo que se vacía. Prueba otra frecuencia.</p>` : ''}`;
     dibujar(1);
     animar();
   });
 
   function construirSerie(llegadas, ab, fin) {
-    const T = Math.max(fin, llegadas[llegadas.length - 1]) + 1;
+    const T = Math.ceil(Math.max(fin, llegadas[llegadas.length - 1])) + 1;
     const fila = new Array(T).fill(0), espera = new Array(T).fill(null);
     let i = 0, j = 0;
     const subidos = [...ab].sort((a, b) => a - b);

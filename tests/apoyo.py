@@ -25,6 +25,11 @@ def requiere(*modulos):
     return unittest.skipIf(faltan, "falta el módulo: motor/" + ", motor/".join(faltan) + ".py")
 
 
+def nombres(ranking):
+    """Solo los nombres de una lista de (nombre, buses) de R6."""
+    return [n for n, _ in ranking]
+
+
 def verificar_invariantes(red):
     estaciones = list(red._por_id)
 

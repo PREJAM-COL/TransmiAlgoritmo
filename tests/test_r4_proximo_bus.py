@@ -32,9 +32,10 @@ class TestR4ProximoBus(unittest.TestCase):
         self.assertEqual(self.red.proximo_bus("ALFA", "R1", "06:00"), "06:00")   # a la misma hora sí alcanza
         self.assertEqual(self.red.proximo_bus("ALFA", "R1", "06:01"), "23:50")
 
-    def test_vuelta_al_dia_siguiente(self):
-        self.assertEqual(self.red.proximo_bus("ALFA", "R1", "23:51"), "05:30")
-        self.assertEqual(self.red.proximo_bus("ECO", "R2", "08:00"), "01:10")
+    def test_sin_mas_buses_ese_dia(self):
+        self.assertIsNone(self.red.proximo_bus("ALFA", "R1", "23:51"))   # ya pasó el último
+        self.assertIsNone(self.red.proximo_bus("ECO", "R2", "08:00"))
+        self.assertEqual(self.red.proximo_bus("ECO", "R2", "00:00"), "01:10")
 
     def test_casos_none(self):
         self.assertIsNone(self.red.proximo_bus("ZETA", "R1", "06:00"))   # estación no existe
@@ -63,7 +64,7 @@ class TestR4ProximoBus(unittest.TestCase):
             m = rnd.randrange(1440)
             horas = red.info_horas(ruta, est)
             i = bisect.bisect_left(horas, m)
-            esperado = formato(horas[i % len(horas)])
+            esperado = formato(horas[i]) if i < len(horas) else None
             self.assertEqual(red.proximo_bus(est, ruta, formato(m)), esperado)
 
 
